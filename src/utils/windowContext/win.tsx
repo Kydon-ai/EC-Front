@@ -1,11 +1,17 @@
-// WindowSizeContext.js
-import React, { createContext, useContext, useEffect, useState } from 'react';
+// WindowSizeContext.tsx
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
-const WindowSizeContext = createContext();
+interface WindowSizeContextType {
+  size: { width: number; height: number };
+  isHorizontal: boolean;
+}
 
-export const WindowSizeProvider = ({ children }) => {
+const WindowSizeContext = createContext<WindowSizeContextType | undefined>(undefined);
+
+export const WindowSizeProvider = ({ children }: { children: ReactNode }) => {
   const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [isHorizontal, setIsHorizontal] = useState(window.innerWidth >= 768); // 根据需要调整断点
+  
   useEffect(() => {
     const handleResize = () => {
       setSize({ width: window.innerWidth, height: window.innerHeight });
@@ -26,4 +32,10 @@ export const WindowSizeProvider = ({ children }) => {
   );
 };
 
-export const useWindowSize = () => useContext(WindowSizeContext);
+export const useWindowSize = (): WindowSizeContextType => {
+  const context = useContext(WindowSizeContext);
+  if (!context) {
+    throw new Error('useWindowSize must be used within a WindowSizeProvider');
+  }
+  return context;
+};

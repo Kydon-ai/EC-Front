@@ -1,22 +1,41 @@
 // TopMenu.tsx
-import React, { useState } from 'react';
+import React from 'react';
 import { Button,Dropdown, Menu,Avatar,Grid} from '@arco-design/web-react';
 const Row = Grid.Row
 import { useNavigate } from 'react-router-dom';
 import { useWindowSize } from '../utils/windowContext/win';
 import { IconMenuUnfold } from '@arco-design/web-react/icon';
 
-const TopMenu: React.FC = ({ items }) => {
-    const [current, setCurrent] = useState('home');
-    const { size,isHorizontal } = useWindowSize();
+// 定义菜单项类型
+interface MenuItem {
+  key: string;
+  label: string;
+  route?: string;
+}
 
-    console.log("查看全屏宽高：",size.width,size.height,isHorizontal)
-    
-    const route = useNavigate()
-    const onClick = (e: { key: string }) => {
-        setCurrent(e.key);
-        console.log('打印key',e.key)
-        route("/" + e.key)
+const TopMenu: React.FC<{ items?: MenuItem[] }> = ({ items }) => {
+    const { isHorizontal } = useWindowSize();
+    const route = useNavigate();
+
+    // 默认菜单项配置
+    const defaultMenuItems: MenuItem[] = [
+        { key: '7', label: 'Home', route: 'home' },
+        { key: '8', label: 'Solution', route: 'solution' },
+        { key: '9', label: 'Cloud Service', route: 'cloud-service' },
+        { key: '10', label: 'Cooperation', route: 'cooperation' }
+    ];
+
+    // 使用传入的 items 或默认菜单项，确保处理空数组情况
+    const menuItems = items && items.length > 0 ? items : defaultMenuItems;
+
+    // 处理菜单项点击事件
+    const handleMenuItemClick = (menuItem: MenuItem) => {
+        console.log('打印key', menuItem.key);
+        if (menuItem.route) {
+            route("/" + menuItem.route);
+        } else {
+            route("/" + menuItem.key);
+        }
     };
     const menus = (
         <Menu  defaultSelectedKeys={['1']}>
@@ -42,11 +61,15 @@ const TopMenu: React.FC = ({ items }) => {
                 {isHorizontal ? (
                     <div style={{ display:'flex'}}>
                         <div style={{width:'462px'}}>
-                            <Menu mode='horizontal' >
-                                <Menu.Item key='7'>Home</Menu.Item>
-                                <Menu.Item key='8'>Solution</Menu.Item>
-                                <Menu.Item key='9'>Cloud Service</Menu.Item>
-                                <Menu.Item key='10'>Cooperation</Menu.Item>
+                            <Menu mode='horizontal'>
+                                {menuItems.map(item => (
+                                    <Menu.Item 
+                                        key={item.key} 
+                                        onClick={() => handleMenuItemClick(item)}
+                                    >
+                                        {item.label}
+                                    </Menu.Item>
+                                ))}
                             </Menu>
                         </div>
                         <Avatar >
