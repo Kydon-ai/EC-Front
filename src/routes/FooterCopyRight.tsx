@@ -1,7 +1,7 @@
 // components/FooterCopyright.js
 // import React from 'react';
 import { useEffect, useState } from 'react';
-import { Image } from 'antd';
+import { Image } from '@arco-design/web-react';
 import './FooterCopyright.css';
 
 const FooterCopyright = () => {
@@ -97,8 +97,8 @@ const FooterCopyright = () => {
         <Image 
           src={"/img/ba.png"} 
           width={15} // 按实际尺寸调整
-          preview={false} 
           alt="公安备案标识"
+          preview={false}
         />
         <a href="https://beian.mps.gov.cn/#/query/webSearch?code=44030002006655" rel="noreferrer" target="_blank">粤公网安备44030002006655号</a>
       </p>

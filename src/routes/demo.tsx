@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Button } from "antd";
+import { Button } from '@arco-design/web-react';
 import { GlobalState } from "../store/store";
 import { increment, decrement } from "../store/demoSlice";
 export default function ShowDemo() {
@@ -18,7 +18,7 @@ export default function ShowDemo() {
 	return (
 		<>
 			<div>demo全局状态handleUp计数：{count}</div>
-			<Button onClick={handleUp}>增加</Button>
+			<Button type='primary' onClick={handleUp}>增加</Button>
 			<Button onClick={handleDown}>减少</Button>
 		</>
 	);

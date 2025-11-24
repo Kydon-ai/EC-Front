@@ -1,21 +1,6 @@
-import { Card ,Tabs,Image, TabsProps,Alert} from "antd"
+import { Card ,Tabs,Image,Alert } from '@arco-design/web-react';
+const TabPane = Tabs.TabPane;
 export default function DefaultTemplate() {
-    const items: TabsProps['items'] = [
-        {
-          key: '1',
-          label: '微信',
-          children: <div style={{ display:'flex',justifyContent: 'center'}}>
-            <Image width={200} src="http://www.qidong.tech:5173/resource/wx_lqd.jpg"></Image>
-          </div>,
-        },
-        {
-          key: '2',
-          label: 'QQ',
-          children:  <div style={{ display:'flex',justifyContent: 'center'}}>
-                    <Image width={200} src="http://www.qidong.tech:5173/resource/qq_lqd.jpg"></Image>
-                </div>,
-        },
-      ];
     return (<>
         <div style={{ maxWidth:'800px',margin: '0 auto', padding: '20px' ,borderRadius: "10px"}}>
             <div className="top-img" style={{ height: '200px',backgroundImage:'url(http://www.qidong.tech:5173/resource/summer.png)',backgroundPosition:'center',backgroundRepeat:'no-repeat',
@@ -76,9 +61,20 @@ export default function DefaultTemplate() {
                     borderTopLeftRadius:'initial',
                     borderTopRightRadius:'initial',}}>
                     <h1>加我好友</h1>
-                    <Tabs defaultActiveKey="1" centered items={items}> </Tabs>
+                    <Tabs defaultActiveTab="1" className="centered-tabs">
+                        <TabPane key='1' title='QQ'>
+                            <div style={{ display:'flex',justifyContent: 'center'}}>
+                                <Image width={200} src="http://www.qidong.tech:5173/resource/wx_lqd.jpg"></Image>
+                            </div>
+                        </TabPane>
+                        <TabPane key='2' title='WX'>
+                            <div style={{ display:'flex',justifyContent: 'center'}}>
+                                <Image width={200} src="http://www.qidong.tech:5173/resource/qq_lqd.jpg"></Image>
+                            </div>
+                        </TabPane>
+                    </Tabs>
                 </Card>
-                <Alert  message="嗯哼？你又来视奸我啦(￣ω￣;)" type="info" ></Alert>
+                <Alert  content="嗯哼？你又来视奸我啦(￣ω￣;)" type="info" ></Alert>
             </div>
         </div>
     </>)

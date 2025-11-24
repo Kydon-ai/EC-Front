@@ -12,6 +12,10 @@ React Template——基于字节生态库开发的原生React开箱即用开发�
 
 node version 18.18.2
 
+## 使用到的小工具
+[png在线转ico]:(https://www.aconvert.com/cn/icon/png-to-ico/) <br>
+
+
 ## 滚动开发目标
 -[] 1) 首屏优化
 -[] 2) 后端技术选型
