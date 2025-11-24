@@ -42,7 +42,7 @@ export default function DefaultTemplate() {
                     </p>
                     <p>
                         <strong>自我介绍: &nbsp;&nbsp;</strong>
-                        <span>来自十八线乡村,非标准农村做题家;</span>
+                        <span>自我介绍</span>
                     </p>
                     <p>
                         <strong>个人爱好: &nbsp;&nbsp;</strong>

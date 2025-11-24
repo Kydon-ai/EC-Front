@@ -13,13 +13,6 @@ const persistConfig = {
 	storage,
   };
   
-// const globalStore = configureStore({
-// 	reducer: {
-// 		test: testReducer,
-// 		demo: demoReducer,
-// 		global: globalReducer,
-// 	},
-// });
 
 // 创建持久化 reducer
 const rootReducer = combineReducers({

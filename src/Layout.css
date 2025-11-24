@@ -4,17 +4,37 @@
     min-height: 100vh;
   }
   
-  .header, .footer {
+  .header {
     background-color: #333;
     color: white;
     padding: 20px;
     text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .footer {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
   }
   
   .content {
-    flex: 1;
+    padding-bottom: 150px; /* 为固定的footer留出空间 */
+    min-height: 150vh; /* 确保内容区域足够大，需要滚动才能看到底部 */
+  }
+  
+  .content {
+    /* 重置flex属性，避免布局冲突 */
     max-width: 1200px;
-    margin: 20px auto;
+    margin: 0 auto;
     padding: 20px;
     background-color: darkgray;
   }
@@ -23,8 +43,9 @@
   @media (max-width: 768px) {
     .content {
       max-width: 100%;
-      margin: 0;
+      margin: 0 0 80px;
       padding: 10px;
       background-color: darkgray;
+      min-height: calc(100vh - 80px) !important; /* 在移动端也保持足够的最小高度并添加!important */
     }
   }

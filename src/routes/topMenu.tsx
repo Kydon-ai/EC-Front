@@ -4,37 +4,13 @@ import { Button, Dropdown, Menu, Row,Avatar, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useWindowSize } from '../utils/windowContext/win';
 import { DownOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
-const TopMenu: React.FC = () => {
+
+const TopMenu: React.FC = ({ items }) => {
     const [current, setCurrent] = useState('home');
     const { size,isHorizontal } = useWindowSize();
 
     console.log("查看全屏宽高：",size.width,size.height,isHorizontal)
-    const items = [
-        {
-            key: 'find-shit',
-            label: '史海淘金',
-        },
-        {
-            key: 'about-project',
-            label: '关于项目',
-        },
-        {
-            key: 'front-source',
-            label: '前端资源',
-        },
-        {
-            key: 'friend-chain',
-            label: '网站友链',
-        },
-        {
-            key: 'concat-me',
-            label: '作者详情',
-        },
-        {
-            key: 'home',
-            label: '主页',
-        },
-    ];
+    
     const route = useNavigate()
     const onClick = (e: { key: string }) => {
         setCurrent(e.key);
@@ -57,22 +33,26 @@ const TopMenu: React.FC = () => {
         <Row>
             <div style={{ display: 'flex',justifyContent: 'space-between',width: '100%'}}>
                 <div style={{ display: 'flex', alignItems: 'center',cursor:"pointer"}} onClick={handleClickLogo}>
-                    <img style={{height: '2rem', width: '2rem',marginRight:'5px'}} src="/img/yctf.jpg" alt="LOGO加载失败了" />
+                    <img style={{height: '2rem', width: '2rem',marginRight:'5px'}} src="/img/react.png" alt="LOGO加载失败了" />
                         
                     <div style={{ zoom: "60%"}}>
-                        <p style={{fontSize:'2rem',textAlign: 'justify',margin: 0,fontWeight: 'lighter'}}>DBLOG<span style={{display: 'inline-block',width: '0%'}}></span></p>
-                        <p style={{fontSize:'1rem',textAlign: 'justify',margin: 0,fontWeight: 'bolder'}}>雏草姬的温暖港湾<span style={{display: 'inline-block',width: '0%'}}></span></p>
+                        <p style={{fontSize:'2rem',textAlign: 'justify',margin: 0,fontWeight: 'lighter'}}>React Template<span style={{display: 'inline-block',width: '0%'}}></span></p>
+                        <p style={{fontSize:'1rem',textAlign: 'justify',margin: 0,fontWeight: 'bolder'}}>基于字节跳动生态的原生React开发模板<span style={{display: 'inline-block',width: '0%'}}></span></p>
                     </div>
                 </div>
                 {isHorizontal ? (
                     <div style={{ display:'flex'}}>
                         <Menu
-                        onClick={onClick}
-                        selectedKeys={[current]}
-                        mode="horizontal"
-                        items={items}
+                            onClick={onClick}
+                            selectedKeys={[current]}
+                            mode="horizontal"
+                            items={items}
                         />
-                        <Avatar src={"/img/ht.gif"} size='large'></Avatar>
+                        <Avatar src={"/img/user.png"} size='large' style={{
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                            border: "2px solid #ccc"
+                        }}></Avatar>
                     </div>
                 ) : (
                     <Dropdown overlay={menus} trigger={['click']}>
