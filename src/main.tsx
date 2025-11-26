@@ -13,6 +13,7 @@ import FooterCopyright from "./routes/FooterCopyRight.tsx";
 import TopMenu from "./routes/topMenu.tsx";
 import ShowDemo from "./routes/demo.tsx";
 import Home from "./routes/Home.tsx";
+import TailwindDemo from "./routes/TailwindDemo.tsx";
 
 // 主页导航栏数据
 const items = [
@@ -31,6 +32,10 @@ const items = [
 	{
 		key: 'friend-chain',
 		label: '网站友链',
+	},
+	{
+		key: 'tailwind-demo',
+		label: 'Tailwind示例',
 	},
 ];
 import AboutAuthor from "./routes/normal/AboutAuthor.tsx"
@@ -59,6 +64,7 @@ createRoot(document.getElementById("root")!).render(
 									{/* <Route path="/about-author" element={<AboutAuthor />} /> */}
 									<Route path="/concat-me" element={<ConcatMe />} />
 									<Route path="/friend-chain" element={<FriendChain />} />
+									<Route path="/tailwind-demo" element={<TailwindDemo />} />
 								</Routes>
 							</div>
 							<FloatButton.BackTop />

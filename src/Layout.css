@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Tabs组件表头居中样式 */
 .centered-tabs .arco-tabs-header {
   margin: auto;
@@ -5,5 +9,5 @@
 
 /* 全局Icon配置 */
 .arco-icon {
-  font-size: 32;
+  font-size: 32px;
 }
