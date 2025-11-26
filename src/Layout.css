@@ -1,5 +1,14 @@
+/* 轻量级原生 HTML 元素样式重置 */
 @tailwind base;
+/* 
+提供一些可复用的组件基础样式 
+用 @layer components来添加自己的自定义组件类
+*/
 @tailwind components;
+/* 
+包含所有功能类
+（如 flex,pt-4,text-center,bg-blue-500） 
+*/
 @tailwind utilities;
 
 /* Tabs组件表头居中样式 */

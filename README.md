@@ -10,7 +10,7 @@ React Template——基于字节生态库开发的原生React开箱即用开发�
 [TypeScript]:(https://typescript.bootcss.com/) <br>
 [Zustand]:(https://zustand.nodejs.cn/) <br>
 [Zustand-ZH]:(https://ouweiya.github.io/zustand-zh/) <br>
-[Tailwind CSS]:(https://www.tailwindcss.cn/docs/installation)
+[Tailwind CSS]:(https://www.tailwindcss.cn/docs/installation) <br>
 
 node version 18.18.2
 

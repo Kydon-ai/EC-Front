@@ -1,5 +1,7 @@
 // 添加路由
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AuthGuard from './routes/AuthGuard';
+
 import { FC, StrictMode, useRef } from "react";
 import { createRoot } from "react-dom/client";
 // UI及对应ICON
@@ -33,10 +35,10 @@ const items = [
 		key: 'friend-chain',
 		label: '网站友链',
 	},
-	{
-		key: 'tailwind-demo',
-		label: 'Tailwind示例',
-	},
+	// {
+	// 	key: 'tailwind-demo',
+	// 	label: 'Tailwind示例',
+	// },
 ];
 import AboutAuthor from "./routes/normal/AboutAuthor.tsx"
 import AboutProject from "./routes/normal/AboutProject.tsx"
@@ -54,17 +56,17 @@ createRoot(document.getElementById("root")!).render(
 					</header>
 					<main className="content">
 						<div style={{ minHeight: "100vh", backgroundColor: "darkgray" }}>
-							{/* <App /> */}
 							<div style={{ maxWidth: '800px', margin: 'auto', }}>
 								<Routes>
 									<Route path="/" element={<Home />} />
 									<Route path="/home" element={<Home />} />
 									<Route path="/demo" element={<ShowDemo />} />
-									<Route path="/about-project" element={<AboutProject />} />
-									{/* <Route path="/about-author" element={<AboutAuthor />} /> */}
-									<Route path="/concat-me" element={<ConcatMe />} />
-									<Route path="/friend-chain" element={<FriendChain />} />
 									<Route path="/tailwind-demo" element={<TailwindDemo />} />
+
+									<Route path="/about-project" element={<AuthGuard><AboutProject /></AuthGuard>} />
+									{/* <Route path="/about-author" element={<AboutAuthor />} /> */}
+									<Route path="/concat-me" element={<AuthGuard><ConcatMe /></AuthGuard>} />
+									<Route path="/friend-chain" element={<AuthGuard><FriendChain /></AuthGuard>} />
 								</Routes>
 							</div>
 							<FloatButton.BackTop />
