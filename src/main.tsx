@@ -16,6 +16,12 @@ import TopMenu from "./routes/topMenu.tsx";
 import ShowDemo from "./routes/demo.tsx";
 import Home from "./routes/Home.tsx";
 import TailwindDemo from "./routes/TailwindDemo.tsx";
+import ChatApp from "./routes/businessComponents/chat.tsx";
+import AboutAuthor from "./routes/normal/AboutAuthor.tsx"
+import AboutProject from "./routes/normal/AboutProject.tsx"
+import ConcatMe from "./routes/normal/ConcatMe.tsx"
+import FriendChain from "./routes/normal/FriendChain.tsx";
+import { WindowSizeProvider } from "./utils/windowContext/win.tsx";
 
 // 主页导航栏数据
 const items = [
@@ -40,11 +46,7 @@ const items = [
 	// 	label: 'Tailwind示例',
 	// },
 ];
-import AboutAuthor from "./routes/normal/AboutAuthor.tsx"
-import AboutProject from "./routes/normal/AboutProject.tsx"
-import ConcatMe from "./routes/normal/ConcatMe.tsx"
-import FriendChain from "./routes/normal/FriendChain.tsx";
-import { WindowSizeProvider } from "./utils/windowContext/win.tsx";
+
 
 createRoot(document.getElementById("root")!).render(
 	<StrictMode>
@@ -62,6 +64,7 @@ createRoot(document.getElementById("root")!).render(
 									<Route path="/home" element={<Home />} />
 									<Route path="/demo" element={<ShowDemo />} />
 									<Route path="/tailwind-demo" element={<TailwindDemo />} />
+									<Route path="/chat" element={<ChatApp />} />
 
 									<Route path="/about-project" element={<AuthGuard><AboutProject /></AuthGuard>} />
 									{/* <Route path="/about-author" element={<AboutAuthor />} /> */}
