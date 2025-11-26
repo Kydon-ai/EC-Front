@@ -1,7 +1,7 @@
 export default function FriendChain() {
-  return (
-    <>
+	return (
+		<>
       这是友链界面
-    </>
-  );
+		</>
+	);
 }
