@@ -1,7 +1,7 @@
 
 # 青训营专属改造模板目标
-React Template——基于字节生态库开发的原生React开箱即用开发模板
-> 目标技术栈： React18、React Router、zustand、Arco Design、TS
+React Template——基于Antd开发的原生React开箱即用开发模板
+> 目标技术栈： React18、React Router、zustand、Antd、TS
 
 ## 技术栈文档
 [Arco Design]:(https://arco.design/react/docs/start) <br>
