@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-
+import { useNavigate } from 'react-router-dom';
+import { Button } from 'antd';
 // 聊天消息类型定义
 interface ChatMessage {
 	id: string;
@@ -9,6 +10,9 @@ interface ChatMessage {
 }
 
 const ChatApp: React.FC = () => {
+	// 导入useNavigate钩子用于路由导航
+	const navigate = useNavigate();
+
 	// 模拟聊天历史记录，使用useState管理
 	const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
 		{
@@ -74,7 +78,7 @@ const ChatApp: React.FC = () => {
 		setInputValue('');
 
 		// 显示文件上传弹窗
-		setShowFileUploadModal(true);
+		// setShowFileUploadModal(true);
 
 		// 延迟添加机器人回复
 		setTimeout(() => {
@@ -86,6 +90,168 @@ const ChatApp: React.FC = () => {
 			};
 			setChatHistory(prev => [...prev, botMessage]);
 		}, 500);
+	};
+
+	// 发起API请求并处理EventStream响应
+	const handleApiRequest = () => {
+		if (!inputValue.trim()) return;
+		console.log("发起请求")
+		// 获取当前时间
+		const now = new Date();
+		const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+		// 添加用户消息
+		const userMessage: ChatMessage = {
+			id: `msg-${Date.now()}`,
+			content: inputValue,
+			sender: 'user',
+			timestamp: timeString
+		};
+
+		setChatHistory(prev => [...prev, userMessage]);
+
+		// 清空输入框
+		setInputValue('');
+
+		// 创建一个唯一ID用于标识此次AI回复
+		const aiMessageId = `msg-${Date.now() + 1}`;
+
+		// 添加一个空的AI消息，用于后续增量更新
+		const initialAiMessage: ChatMessage = {
+			id: aiMessageId,
+			content: '',
+			sender: 'bot',
+			timestamp: timeString
+		};
+
+		setChatHistory(prev => [...prev, initialAiMessage]);
+
+		// 发起请求
+		fetch('/api/v1/conversation/completion', {
+			method: 'POST',
+			headers: {
+				'Accept': '*/*',
+				'Accept-Language': 'zh-CN,zh;q=0.9',
+				'Authorization': 'ImU4OTFlY2FhZDBkYTExZjBhZDNmYmE4NWQ5N2QyYThmIg.aTEq0w.qbgUTTp7aYyhueSljmcDhNSU-GM',
+				'Connection': 'keep-alive',
+				'Content-Type': 'application/json',
+				'Origin': 'http://172.31.136.239:3055',
+				'Referer': 'http://172.31.136.239:3055/next-chat/b1c5bf98d0e011f0ad3fba85d97d2a8f?conversationId=67deffecf4254115bb8c29cd9c0f8134&isNew=',
+				'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36'
+			},
+			body: JSON.stringify({
+				"conversation_id": "67deffecf4254115bb8c29cd9c0f8134",
+				"messages": [
+					{ "content": "你好！ 我是你的助理，有什么可以帮到你的吗？", "role": "assistant" },
+					{ "id": "7ec087f7-2b30-49d9-b230-509df026d59d", "content": inputValue, "role": "user", "doc_ids": [] }
+				]
+			}),
+			credentials: 'include'
+		})
+			.then(response => {
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+
+				// 获取可读流
+				const reader = response.body?.getReader();
+				if (!reader) {
+					throw new Error('No readable stream');
+				}
+
+				const decoder = new TextDecoder('utf-8');
+				let buffer = '';
+
+				// 读取流的函数
+				const readStream = () => {
+					reader.read().then(({ done, value }) => {
+						if (done) {
+							console.log('Stream ended');
+							return;
+						}
+
+						// 解码新数据
+						buffer += decoder.decode(value, { stream: true });
+
+						// 按行分割数据
+						const lines = buffer.split('\n');
+						// 保存未完成的行
+						buffer = lines.pop() || '';
+
+						// 处理每一行
+						lines.forEach(line => {
+							// 跳过空行
+							if (!line.trim()) return;
+
+							// 移除前缀（如果有）
+							if (line.startsWith('data:')) {
+								line = line.slice(5);
+							}
+							console.log("see every line:", line)
+							try {
+								// 解析JSON
+								const responseData = JSON.parse(line);
+
+								// 检查code是否为0表示成功
+								if (responseData.code === 0) {
+									const data = responseData.data;
+
+									// 检查data是否为true
+									if (data === true) {
+										// 如果data是true，停止更新
+										reader.cancel();
+										return;
+									} else if (typeof data === 'object' && data !== null && 'answer' in data) {
+										// 如果是对象且有answer属性，更新AI回复
+										updateAiResponse(data.answer);
+									}
+								} else {
+									// 处理错误情况
+									console.error('API error:', responseData.message);
+								}
+							} catch (error) {
+								console.error('Error parsing JSON:', error, 'Line:', line);
+							}
+						});
+
+						// 继续读取
+						readStream();
+					});
+				};
+
+				// 开始读取流
+				readStream();
+
+				// 更新AI回复的函数
+				const updateAiResponse = (newContent: string) => {
+					setChatHistory(prev => {
+						// 找到当前AI消息并更新内容
+						return prev.map(msg => {
+							if (msg.id === aiMessageId) {
+								return {
+									...msg,
+									content: newContent
+								};
+							}
+							return msg;
+						});
+					});
+				};
+
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				// 添加错误消息
+				setChatHistory(prev => [
+					...prev,
+					{
+						id: `msg-${Date.now() + 2}`,
+						content: `请求失败：${error.message}`,
+						sender: 'bot',
+						timestamp: timeString
+					}
+				]);
+			});
 	};
 
 	// 关闭文件上传弹窗
@@ -103,7 +269,16 @@ const ChatApp: React.FC = () => {
 			{/* 聊天应用头部 */}
 			<header className="bg-white shadow-md py-3 px-6">
 				<div className="flex items-center justify-between">
-					<h1 className="text-xl font-bold text-gray-800">豆包聊天助手</h1>
+					<div className="flex items-center space-x-4">
+						<button
+							className="text-gray-600 hover:text-gray-900 transition-colors"
+							onClick={() => navigate(-1)}
+							title="返回上一页"
+						>
+							←
+						</button>
+						<h1 className="text-xl font-bold text-gray-800">豆包聊天助手</h1>
+					</div>
 					<div className="flex items-center space-x-3">
 						<span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
 						<span className="text-sm text-gray-600">在线</span>
@@ -140,7 +315,6 @@ const ChatApp: React.FC = () => {
 					))}
 					<div ref={messagesEndRef} />
 
-					{/* 示例提示 */}
 					<div className="flex justify-center mt-8">
 						<div className="flex flex-wrap gap-2">
 							{['今天天气怎么样？', '如何学习React？', '推荐一本好书', '帮我写个简历'].map((tip, index) => (
@@ -173,6 +347,7 @@ const ChatApp: React.FC = () => {
 						<button
 							className="p-3 bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition-colors"
 							title="上传文件"
+							onClick={() => setShowFileUploadModal(true)}
 						>
 							📎
 						</button>
@@ -182,6 +357,14 @@ const ChatApp: React.FC = () => {
 							disabled={!inputValue.trim()}
 						>
 							→
+						</button>
+						<button
+							className="p-3 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors"
+							onClick={handleApiRequest}
+							disabled={!inputValue.trim()}
+							title="发起API请求"
+						>
+							🚀
 						</button>
 					</div>
 

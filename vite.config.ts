@@ -8,5 +8,13 @@ export default defineConfig({
 	server: {
 		host: '0.0.0.0', // 监听所有网络接口
 		// port: 5173,      // 指定端口号（可选）
+		proxy: {
+			// 配置代理，解决跨域问题
+			'/api': {
+				target: 'http://172.31.136.239:3055', // 目标服务器地址
+				changeOrigin: true, // 允许跨域
+				rewrite: (path) => path.replace(/^\/api/, ''), // 重写路径，将/api前缀去掉
+			},
+		},
 	},
 })
