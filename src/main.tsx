@@ -1,5 +1,5 @@
 // 添加路由
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import AuthGuard from './routes/AuthGuard';
 
 import { FC, StrictMode, useRef } from "react";
@@ -48,38 +48,52 @@ const items = [
 ];
 
 
-createRoot(document.getElementById("root")!).render(
-	<StrictMode>
-		<BrowserRouter >
-			<WindowSizeProvider>
-				<div className="layout">
+// 创建布局组件以使用useLocation钩子
+const AppLayout = () => {
+	const location = useLocation();
+
+	return (
+		<WindowSizeProvider>
+			<div className="layout">
+				{location.pathname !== '/chat' && (
 					<header className="header" style={{}}>
 						<TopMenu items={items}></TopMenu>
 					</header>
-					<main className="content">
-						<div style={{ minHeight: "100vh", backgroundColor: "darkgray" }}>
-							<div style={{ maxWidth: '800px', margin: 'auto', }}>
-								<Routes>
-									<Route path="/" element={<Home />} />
-									<Route path="/home" element={<Home />} />
-									<Route path="/demo" element={<ShowDemo />} />
-									<Route path="/tailwind-demo" element={<TailwindDemo />} />
-									<Route path="/chat" element={<ChatApp />} />
+				)}
+				<main className="content">
+					<div style={{ minHeight: "100vh", backgroundColor: "darkgray" }}>
+						<div style={{ maxWidth: '800px', margin: 'auto', }}>
+							<Routes>
+								<Route path="/" element={<Home />} />
+								<Route path="/home" element={<Home />} />
+								<Route path="/demo" element={<ShowDemo />} />
+								<Route path="/tailwind-demo" element={<TailwindDemo />} />
+								<Route path="/chat" element={<ChatApp />} />
 
-									<Route path="/about-project" element={<AuthGuard><AboutProject /></AuthGuard>} />
-									{/* <Route path="/about-author" element={<AboutAuthor />} /> */}
-									<Route path="/concat-me" element={<AuthGuard><ConcatMe /></AuthGuard>} />
-									<Route path="/friend-chain" element={<AuthGuard><FriendChain /></AuthGuard>} />
-								</Routes>
-							</div>
-							<FloatButton.BackTop />
+								<Route path="/about-project" element={<AuthGuard><AboutProject /></AuthGuard>} />
+								{/* <Route path="/about-author" element={<AboutAuthor />} /> */}
+								<Route path="/concat-me" element={<AuthGuard><ConcatMe /></AuthGuard>} />
+								<Route path="/friend-chain" element={<AuthGuard><FriendChain /></AuthGuard>} />
+							</Routes>
 						</div>
-					</main>
+						<FloatButton.BackTop />
+					</div>
+				</main>
+				{/* 当路由不是/chat时渲染页脚 */}
+				{location.pathname !== '/chat' && (
 					<footer className="footer" style={{ minHeight: "10vh" }}>
 						<FooterCopyright></FooterCopyright>
 					</footer>
-				</div>
-			</WindowSizeProvider>
+				)}
+			</div>
+		</WindowSizeProvider>
+	);
+};
+
+createRoot(document.getElementById("root")!).render(
+	<StrictMode>
+		<BrowserRouter >
+			<AppLayout />
 		</BrowserRouter>
 	</StrictMode>
 );

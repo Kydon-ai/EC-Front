@@ -29,6 +29,6 @@ node version 18.18.2
 
 -[√] 3) RAG 的基本方案——RAGFlow <br>
 
--[√] 4) 前端样式模块化选型 <br>
+-[√] 4) 前端样式模块化选型——TailWindCSS 样式组 <br>
 
 -[√] 5) Pretty + ESLint(暂时先使用 ESLint + IDE 根据 ESLint 的方案进行格式化) <br>
