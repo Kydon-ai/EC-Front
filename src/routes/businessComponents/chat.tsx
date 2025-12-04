@@ -187,7 +187,7 @@ const ChatApp: React.FC = () => {
 							if (line.startsWith('data:')) {
 								line = line.slice(5);
 							}
-							console.log("see every line:", line)
+							console.log("see every li	ne:", line)
 							try {
 								// 解析JSON
 								const responseData = JSON.parse(line);
