@@ -32,3 +32,19 @@ node version 18.18.2
 -[√] 4) 前端样式模块化选型——TailWindCSS 样式组 <br>
 
 -[√] 5) Pretty + ESLint(暂时先使用 ESLint + IDE 根据 ESLint 的方案进行格式化) <br>
+
+## 最后冲刺功能点
+
+-[] 1) RAGFlow 接口整合到后端 <br>
+
+-[] 2) 实现 RAG 参考内容引用 <br>
+
+-[] 3) RAGFlow 配置多模态解析（可选） <br>
+
+-[] 4) 历史对话信息展示 <br>
+
+-[] 5) Eharts 后台数据管理 <br>
+
+-[] 6) PlayRight 自动更新数据源 <br>
+
+-[] 7) 接入阿里云 TTS 服务 <br>
