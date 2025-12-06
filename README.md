@@ -4,6 +4,19 @@ React Template——基于 Antd 开发的原生 React 开箱即用开发模板
 
 > 目标技术栈： React18、React Router、zustand、Antd、TS
 
+# 一、运行说明
+
+node version 18.18.2
+
+| 序号 | 指令         | 作用     | 备注 |
+| ---- | ------------ | -------- | ---- |
+| 1    | pnpm run dev | 运行项目 | 无   |
+| 2    | pnpm run dev | 运行项目 | 无   |
+| 3    | pnpm run dev | 运行项目 | 无   |
+| 4    | pnpm run dev | 运行项目 | 无   |
+
+# 二、文档记录
+
 ## 技术栈文档
 
 ~~[Arco Design]:(https://arco.design/react/docs/start)~~ <br>
@@ -20,6 +33,8 @@ node version 18.18.2
 ## 使用到的小工具
 
 [png 在线转 ico]:(https://www.aconvert.com/cn/icon/png-to-ico/) <br>
+
+# 三、开发 OKR
 
 ## 滚动开发目标
 

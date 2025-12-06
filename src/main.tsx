@@ -17,6 +17,8 @@ import ShowDemo from "./routes/demo.tsx";
 import Home from "./routes/Home.tsx";
 import TailwindDemo from "./routes/TailwindDemo.tsx";
 import ChatApp from "./routes/businessComponents/chat.tsx";
+import DocumentUpload from "./routes/businessComponents/DocumentUpload.tsx";
+import DocumentManagement from "./routes/businessComponents/DocumentManagement.tsx";
 import AboutAuthor from "./routes/normal/AboutAuthor.tsx"
 import AboutProject from "./routes/normal/AboutProject.tsx"
 import ConcatMe from "./routes/normal/ConcatMe.tsx"
@@ -32,6 +34,14 @@ const items = [
 	{
 		key: 'about-project',
 		label: '关于项目',
+	},
+	{
+		key: 'document-upload',
+		label: '文档上传',
+	},
+	{
+		key: 'document-management',
+		label: '文档管理',
 	},
 	{
 		key: 'concat-me',
@@ -69,6 +79,8 @@ const AppLayout = () => {
 								<Route path="/demo" element={<ShowDemo />} />
 								<Route path="/tailwind-demo" element={<TailwindDemo />} />
 								<Route path="/chat" element={<ChatApp />} />
+								<Route path="/document-upload" element={<DocumentUpload />} />
+								<Route path="/document-management" element={<DocumentManagement />} />
 
 								<Route path="/about-project" element={<AuthGuard><AboutProject /></AuthGuard>} />
 								{/* <Route path="/about-author" element={<AboutAuthor />} /> */}
