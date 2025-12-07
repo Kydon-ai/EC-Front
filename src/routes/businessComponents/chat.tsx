@@ -1,6 +1,31 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'antd';
+
+// Markdown样式
+const markdownStyles = `
+/* 确保有序列表显示正确的序号 */
+.markdown-content ol {
+  list-style-type: decimal !important;
+  padding-left: 2rem !important;
+  margin: 1rem 0 !important;
+}
+
+/* 确保无序列表显示正确的符号 */
+.markdown-content ul {
+  list-style-type: disc !important;
+  padding-left: 2rem !important;
+  margin: 1rem 0 !important;
+}
+
+/* 确保列表项正确显示 */
+.markdown-content li {
+  display: list-item !important;
+  margin-bottom: 0.5rem;
+}
+`;
 // 聊天消息类型定义
 interface ChatMessage {
 	id: string;
@@ -13,11 +38,21 @@ const ChatApp: React.FC = () => {
 	// 导入useNavigate钩子用于路由导航
 	const navigate = useNavigate();
 
+	// 注入Markdown样式
+	useEffect(() => {
+		const style = document.createElement('style');
+		style.textContent = markdownStyles;
+		document.head.appendChild(style);
+		return () => {
+			document.head.removeChild(style);
+		};
+	}, []);
+
 	// 模拟聊天历史记录，使用useState管理
 	const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
 		{
 			id: '1',
-			content: '你好！我是AI助手豆包，很高兴为你服务。请问有什么我可以帮助你的吗？',
+			content: "根据知识库内容，商品信息是指商家在平台内以各种形式向消费者展示的、关于所销售商品的描述[ID:2]。具体包括：\n\n1.  **定义**：商品信息是商家在店铺页面、商品详情页面、推广页面、客服聊天工具等任何向消费者展示的场景中，以文字、图片、音频、视频等形式，对所销售商品本身（如基本属性、所属类目、规格、数量、保质期等）、品牌、外包装、发货情况、交易附带物等信息所做的明示或暗示的描述[ID:2]。\n\n2.  **构成部分**：根据规范要求，完整的商品信息通常涵盖以下方面：\n    *   **标题**：需包含品牌、品名、基本属性和规格参数等[ID:3]。\n    *   **类目与属性**：需根据商品实际属性选择正确类目并填写相关属性[ID:6]。\n    *   **品牌与资质**：若涉及品牌信息，需提供相应的品牌资质[ID:6]。\n    *   **主图**：必须为清晰展示商品主体的实物图，且需包含多角度及细节图[ID:4]。\n    *   **商品详情**：需包含图片，不可仅为文本；需明示赠品信息；对食品、化妆品等特定品类需明示保质期[ID:0]。\n    *   **价格**：设置时应遵守平台的价格管理规则[ID:0]。\n    *   **SPU/SKU**：用于定义和管理商品的聚合信息及最小销售单元[ID:0]。\n\n3.  **核心要求**：商家在发布商品信息时，必须遵循真实、完整和一致的基本原则[ID:1]。即信息需真实有效且及时更新；主要信息（如品牌介绍、生产日期、规格等）应完整无缺失；且在标题、属性、主图等各个版块中的描述要素需保持一致[ID:1]。",
 			sender: 'bot',
 			timestamp: '10:30'
 		},
@@ -361,11 +396,11 @@ const ChatApp: React.FC = () => {
 									AI
 								</div>
 							)}
-							<div className={`max-w-[70%] ${message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-white text-gray-800'} rounded-lg p-4 shadow-sm relative`}>
+							<div className={`markdown-content max-w-[70%] ${message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-white text-gray-800'} rounded-lg p-4 shadow-sm relative`}>
 								{message.sender === 'bot' && (
 									<div className="absolute -top-1 -right-1 h-3 w-3 bg-white rounded-full border-2 border-blue-100"></div>
 								)}
-								<div className="whitespace-pre-wrap">{message.content}</div>
+								<ReactMarkdown rehypePlugins={[rehypeRaw]} >{message.content}</ReactMarkdown>
 								<div className="mt-2 text-xs text-gray-400">{message.timestamp}</div>
 							</div>
 							{message.sender === 'user' && (
