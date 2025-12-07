@@ -342,7 +342,7 @@ const DocumentManagement: React.FC = () => {
 	);
 
 	return (
-		<div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+		<div style={{ padding: '20px', maxWidth: '80vw', margin: '0 auto' }}>
 			<Card title={<Title level={2}>文档管理</Title>}>
 				{/* 搜索和筛选区域 */}
 				<div style={{ marginBottom: '20px' }}>

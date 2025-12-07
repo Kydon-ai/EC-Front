@@ -127,26 +127,29 @@ const ChatApp: React.FC = () => {
 		setChatHistory(prev => [...prev, initialAiMessage]);
 
 		// 发起请求
-		fetch('/api/v1/conversation/completion', {
+		fetch('/api/rag/conversation/completion', {
 			method: 'POST',
 			headers: {
-				'Accept': '*/*',
-				'Accept-Language': 'zh-CN,zh;q=0.9',
-				'Authorization': 'ImU4OTFlY2FhZDBkYTExZjBhZDNmYmE4NWQ5N2QyYThmIg.aTEq0w.qbgUTTp7aYyhueSljmcDhNSU-GM',
-				'Connection': 'keep-alive',
-				'Content-Type': 'application/json',
-				'Origin': 'http://172.31.136.239:3055',
-				'Referer': 'http://172.31.136.239:3055/next-chat/b1c5bf98d0e011f0ad3fba85d97d2a8f?conversationId=67deffecf4254115bb8c29cd9c0f8134&isNew=',
-				'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36'
+				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
 				"conversation_id": "67deffecf4254115bb8c29cd9c0f8134",
 				"messages": [
-					{ "content": "你好！ 我是你的助理，有什么可以帮到你的吗？", "role": "assistant" },
-					{ "id": "7ec087f7-2b30-49d9-b230-509df026d59d", "content": inputValue, "role": "user", "doc_ids": [] }
+					{
+						"content": "你好！ 我是你的助理，有什么可以帮到你的吗？",
+						"id": "b2f47ca2-23e0-47bc-a9c9-557689841371",
+						"role": "assistant"
+					},
+					{
+						"id": "806ab24e-d8fe-4079-bca6-0712fa0a1638",
+						"content": inputValue,
+						"role": "user",
+						"files": [],
+						"conversationId": "67deffecf4254115bb8c29cd9c0f8134",
+						"doc_ids": []
+					}
 				]
-			}),
-			credentials: 'include'
+			})
 		})
 			.then(response => {
 				if (!response.ok) {
@@ -161,62 +164,121 @@ const ChatApp: React.FC = () => {
 
 				const decoder = new TextDecoder('utf-8');
 				let buffer = '';
+				let isProcessing = false;
 
 				// 读取流的函数
 				const readStream = () => {
 					reader.read().then(({ done, value }) => {
 						if (done) {
 							console.log('Stream ended');
+							// 尝试解析剩余的缓冲数据
+							processData(buffer);
 							return;
 						}
 
 						// 解码新数据
 						buffer += decoder.decode(value, { stream: true });
 
-						// 按行分割数据
-						const lines = buffer.split('\n');
-						// 保存未完成的行
-						buffer = lines.pop() || '';
-
-						// 处理每一行
-						lines.forEach(line => {
-							// 跳过空行
-							if (!line.trim()) return;
-
-							// 移除前缀（如果有）
-							if (line.startsWith('data:')) {
-								line = line.slice(5);
-							}
-							console.log("see every li	ne:", line)
-							try {
-								// 解析JSON
-								const responseData = JSON.parse(line);
-
-								// 检查code是否为0表示成功
-								if (responseData.code === 0) {
-									const data = responseData.data;
-
-									// 检查data是否为true
-									if (data === true) {
-										// 如果data是true，停止更新
-										reader.cancel();
-										return;
-									} else if (typeof data === 'object' && data !== null && 'answer' in data) {
-										// 如果是对象且有answer属性，更新AI回复
-										updateAiResponse(data.answer);
-									}
-								} else {
-									// 处理错误情况
-									console.error('API error:', responseData.message);
-								}
-							} catch (error) {
-								console.error('Error parsing JSON:', error, 'Line:', line);
-							}
-						});
+						// 处理数据
+						processData(buffer);
 
 						// 继续读取
 						readStream();
 					});
+				};
+
+				// 处理数据的函数
+				const processData = (dataBuffer: string) => {
+					// 防止重复处理
+					if (isProcessing) return;
+					isProcessing = true;
+
+					try {
+						// 按行分割数据
+						const lines = dataBuffer.split('\n');
+
+						// 遍历所有行
+						let processedLines = 0;
+						let tempBuffer = '';
+
+						for (let i = 0; i < lines.length; i++) {
+							let line = lines[i];
+
+							// 跳过空行
+							if (!line.trim()) continue;
+
+							// 如果这行是新的SSE事件开始
+							if (line.startsWith('data:')) {
+								// 处理之前累积的tempBuffer（如果有的话）
+								if (tempBuffer) {
+									try {
+										const responseData = JSON.parse(tempBuffer);
+										processResponse(responseData);
+										tempBuffer = '';
+										processedLines = i;
+									} catch (error) {
+										// 如果解析失败，保留tempBuffer，继续累积
+										console.log('Incomplete JSON, continuing to accumulate:', error.message);
+										break;
+									}
+								}
+
+								// 移除'data:'前缀
+								line = line.slice(5).trim();
+
+								// 累积到tempBuffer
+								tempBuffer += line;
+							} else if (tempBuffer) {
+								// 如果已经在累积一个事件的数据，继续添加
+								tempBuffer += line;
+							}
+						}
+
+						// 尝试解析最后一个累积的事件
+						if (tempBuffer) {
+							try {
+								const responseData = JSON.parse(tempBuffer);
+								processResponse(responseData);
+								tempBuffer = '';
+								processedLines = lines.length;
+							} catch (error) {
+								// 如果解析失败，保留在tempBuffer中
+								console.log('Incomplete JSON at end, keeping in buffer:', error.message);
+							}
+						}
+
+						// 更新缓冲区，只保留未处理的行
+						if (processedLines < lines.length) {
+							buffer = lines.slice(processedLines).join('\n');
+						} else {
+							buffer = '';
+						}
+					} finally {
+						isProcessing = false;
+					}
+				};
+
+				// 处理解析后的响应数据
+				const processResponse = (responseData: any) => {
+					console.log('Processed response:', responseData);
+
+					// 检查code是否为0表示成功
+					if (responseData.code === 0) {
+						const data = responseData.data;
+
+						// 检查data是否为true
+						if (data === true) {
+							// 如果data是true，停止更新
+							reader.cancel();
+							return;
+						} else if (typeof data === 'object' && data !== null && 'answer' in data) {
+							// 如果是对象且有answer属性，更新AI回复
+							updateAiResponse(data.answer);
+						}
+					} else {
+						// 处理错误情况
+						console.error('API error:', responseData.message);
+					}
 				};
 
 				// 开始读取流

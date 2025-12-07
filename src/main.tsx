@@ -72,7 +72,7 @@ const AppLayout = () => {
 				)}
 				<main className="content">
 					<div style={{ minHeight: "100vh", backgroundColor: "darkgray" }}>
-						<div style={{ maxWidth: '800px', margin: 'auto', }}>
+						<div style={{ maxWidth: '80vw', margin: 'auto', }}>
 							<Routes>
 								<Route path="/" element={<Home />} />
 								<Route path="/home" element={<Home />} />
