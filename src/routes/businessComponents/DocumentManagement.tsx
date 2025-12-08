@@ -140,7 +140,7 @@ const DocumentManagement: React.FC = () => {
 			// 实际项目中需要根据日期格式进行比较
 			filtered = filtered.filter(doc => {
 				const docDate = new Date(doc.uploadDate);
-				return docDate >= dateRange[0] && docDate <= dateRange[1];
+				return docDate >= (dateRange[0] as Date) && docDate <= (dateRange[1] as Date);
 			});
 		}
 
