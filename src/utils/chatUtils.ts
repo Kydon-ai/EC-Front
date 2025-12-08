@@ -5,13 +5,24 @@
 /**
  * 复制文本到剪贴板
  * @param text 要复制的文本
+ * @param setCopyMessage 设置复制消息的函数 (可选)
  * @returns Promise<boolean> 复制是否成功
  */
-export const copyToClipboard = async (text: string): Promise<boolean> => {
+export const copyToClipboard = async (text: string, setCopyMessage?: React.Dispatch<React.SetStateAction<string | null>>): Promise<boolean> => {
 	try {
 		await navigator.clipboard.writeText(text);
+		if (setCopyMessage) {
+			setCopyMessage('复制成功！');
+			// 3秒后自动隐藏提示
+			setTimeout(() => setCopyMessage(null), 3000);
+		}
+		console.log('文本已复制到剪贴板');
 		return true;
 	} catch (err) {
+		if (setCopyMessage) {
+			setCopyMessage('复制失败');
+			setTimeout(() => setCopyMessage(null), 3000);
+		}
 		console.error('复制失败:', err);
 		return false;
 	}

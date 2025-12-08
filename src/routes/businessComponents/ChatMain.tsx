@@ -4,6 +4,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import { copyToClipboard } from '../../utils/chatUtils';
+import { markdownStyles } from '../../utils/chatUtils';
 
 interface ChatMainProps {
 	navigate: ReturnType<typeof useNavigate>;
@@ -207,24 +209,12 @@ const ChatMain: React.FC<ChatMainProps> = ({
 		setInputValue(tip);
 	};
 
-	// 复制文本到剪贴板
-	const copyToClipboard = async (text: string) => {
-		try {
-			await navigator.clipboard.writeText(text);
-			// 显示复制成功提示
-			setCopyMessage('复制成功！');
-			// 3秒后自动隐藏提示
-			setTimeout(() => setCopyMessage(null), 3000);
-			console.log('文本已复制到剪贴板');
-		} catch (err) {
-			setCopyMessage('复制失败');
-			setTimeout(() => setCopyMessage(null), 3000);
-			console.error('复制失败:', err);
-		}
-	};
+
 
 	return (
 		<div className="flex-1 flex flex-col">
+			{/* 注入Markdown样式 */}
+			<style dangerouslySetInnerHTML={{ __html: markdownStyles }} />
 			{/* 聊天应用头部 */}
 			<header className="bg-white shadow-md py-3 px-6">
 				<div className="flex items-center justify-between">
@@ -254,7 +244,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 							className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4 relative group`}
 							onMouseEnter={() => setHoveredMessageId(message.id)}
 							onMouseLeave={() => setHoveredMessageId(null)}
-							onDoubleClick={() => copyToClipboard(message.content)}
+							onDoubleClick={() => copyToClipboard(message.content, setCopyMessage)}
 						>
 							{message.sender === 'bot' && (
 								<div className="mr-3 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
@@ -268,7 +258,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 								{/* 复制按钮 - 仅在悬停时显示 */}
 								<button
 									className={`absolute top-2 right-2 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity ${message.sender === 'user' ? 'text-blue-100 hover:text-white' : 'text-gray-400 hover:text-gray-600'}`}
-									onClick={() => copyToClipboard(message.content)}
+									onClick={() => copyToClipboard(message.content, setCopyMessage)}
 									title="复制消息"
 								>
 									📋
