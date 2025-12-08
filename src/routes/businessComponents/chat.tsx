@@ -260,7 +260,11 @@ const ChatApp: React.FC = () => {
 		setChatHistory(prev => [...prev, initialAiMessage]);
 
 		// 更新AI回复的函数
-		const updateAiResponse = (newContent: string) => {
+		const updateAiResponse = (newContent: string, isComplete: boolean) => {
+			// 如果是结束信号且内容为空，保持当前内容不变
+			if (isComplete && newContent === '') {
+				return;
+			}
 			setChatHistory(prev => {
 				// 找到当前AI消息并更新内容
 				return prev.map(msg => {
