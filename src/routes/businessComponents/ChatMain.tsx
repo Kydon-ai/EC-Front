@@ -9,17 +9,20 @@ import { copyToClipboard, generateUUID } from '../../utils/chatUtils';
 import { markdownStyles } from '../../utils/chatUtils';
 
 // 处理消息内容，将[ID:\d+]格式的引用标记转换为HTML
+/* 
+注意：span元素是内联元素，不能直接包含块级元素（如div）。浏览器在解析这种不符合规范的HTML时，会自动调整结构，将块级元素移出内联元素。
+
+*/
 const processMessageContent = (content: string) => {
 	// 匹配[ID:\d+]格式的正则表达式
 	const refRegex = /\[ID:(\d+)\]/g;
-	// const refRegex = /(\d+)\n/g;
 	// 将[ID:\d+]替换为带有特殊样式的HTML
 	return content.replace(refRegex, (match, id) => {
 		return `<span class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs cursor-pointer hover:bg-blue-200 transition-colors relative ref-tag" title="查看引用文档 ID: ${id}">
                 ${id} 
-                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 p-3 bg-gray-800 text-white text-sm rounded-lg shadow-lg opacity-0 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 p-3 bg-gray-800 text-white text-sm rounded-lg shadow-lg opacity-0 transition-opacity duration-200 pointer-events-none whitespace-nowrap block">
                     引用文档 ID: ${id}
-                </div>
+                </span>
             </span>`;
 	});
 };
@@ -261,9 +264,9 @@ const ChatMain: React.FC<ChatMainProps> = ({
 			{/* 引用标记悬停样式 */}
 			<style dangerouslySetInnerHTML={{
 				__html:
-					`.ref-tag:hover div {
-				opacity: 1;
-			}`
+					`.ref-tag:hover span {
+					opacity: 1;
+				}`
 			}} />
 			{/* 聊天应用头部 */}
 			<header className="bg-white shadow-md py-3 px-6">
