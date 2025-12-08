@@ -14,8 +14,11 @@ const ChatApp: React.FC = () => {
 
 	// 对话历史列表
 	const [conversationList, setConversationList] = useState<ConversationItem[]>([]);
+	const conversationListRef = useRef<ConversationItem[]>([]); // 使用useRef保存最新的对话列表
 	// 当前选中的对话ID
 	const [selectedConversationId, setSelectedConversationId] = useState<string>('');
+	// 最新创建的对话ID（用于传递给ChatMain组件）
+	const [latestCreatedConversationId, setLatestCreatedConversationId] = useState<string | null>(null);
 	// 侧边栏折叠状态
 	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -70,6 +73,7 @@ const ChatApp: React.FC = () => {
 			const result = await response.json();
 			if (result.code === 0 && result.data) {
 				setConversationList(result.data);
+				console.log("查询到的数据：", result.data)
 				// 默认选中第一个对话
 				if (result.data.length > 0 && !selectedConversationId) {
 					setSelectedConversationId(result.data[0].id);
@@ -86,6 +90,10 @@ const ChatApp: React.FC = () => {
 	useEffect(() => {
 		fetchConversationList();
 	}, []);
+	useEffect(() => {
+		console.log("更新后的列表", conversationList);
+		conversationListRef.current = conversationList; // 当conversationList更新时，同步更新ref的值
+	}, [conversationList]);
 
 	// 新建对话函数
 	const handleNewConversation = () => {
@@ -94,9 +102,9 @@ const ChatApp: React.FC = () => {
 
 		// 创建新对话对象
 		const newConversation: ConversationItem = {
-			create_date: new Date().toISOString().split('T')[0],
+			// create_date: new Date().toISOString().split('T')[0],
 			create_time: Date.now(),
-			dialog_id: newConversationId,
+			// dialog_id: newConversationId,
 			id: newConversationId,
 			message: [],
 			name: '新对话',
@@ -105,9 +113,10 @@ const ChatApp: React.FC = () => {
 
 		// 添加到对话列表
 		setConversationList(prev => [newConversation, ...prev]);
-
 		// 选中新对话
 		setSelectedConversationId(newConversationId);
+		// 存储最新创建的对话ID
+		setLatestCreatedConversationId(newConversationId);
 
 		// 清空聊天历史
 		setChatHistory([]);
@@ -147,6 +156,18 @@ const ChatApp: React.FC = () => {
 		setShowFileUploadModal(false);
 	};
 
+	// 更新对话名称
+	const handleUpdateConversationName = (conversationId: string, newName: string) => {
+		console.log("更改对话名称******************************")
+		// 使用ref的最新值来更新对话名称
+		const updatedList = conversationListRef.current.map(conversation =>
+			conversation.id === conversationId
+				? { ...conversation, name: newName }
+				: conversation
+		);
+		setConversationList(updatedList);
+	};
+
 	return (
 		<div className="flex h-screen bg-gray-50">
 			{/* 左侧对话历史面板 */}
@@ -177,6 +198,8 @@ const ChatApp: React.FC = () => {
 				setShowFileUploadModal={setShowFileUploadModal}
 				sendChatRequest={sendChatRequest}
 				selectedConversationId={selectedConversationId}
+				onUpdateConversationName={handleUpdateConversationName}
+				latestCreatedConversationId={latestCreatedConversationId}
 			/>
 
 			{/* 文件上传弹窗 */}

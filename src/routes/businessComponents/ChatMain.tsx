@@ -8,20 +8,22 @@ import { copyToClipboard, generateUUID } from '../../utils/chatUtils';
 import { markdownStyles } from '../../utils/chatUtils';
 
 interface ChatMainProps {
-	navigate: ReturnType<typeof useNavigate>;
+	navigate: any;
 	chatHistory: ChatMessage[];
 	setChatHistory: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 	inputValue: string;
 	setInputValue: React.Dispatch<React.SetStateAction<string>>;
 	isRequestLoading: boolean;
 	setIsRequestLoading: React.Dispatch<React.SetStateAction<boolean>>;
-	requestControllerRef: React.RefObject<{ cancel: () => void } | null>;
+	requestControllerRef: React.MutableRefObject<{ cancel: () => void } | null>;
 	messagesEndRef: React.RefObject<HTMLDivElement>;
 	copyMessage: string | null;
 	setCopyMessage: React.Dispatch<React.SetStateAction<string | null>>;
 	setShowFileUploadModal: React.Dispatch<React.SetStateAction<boolean>>;
-	sendChatRequest: typeof sendChatRequest;
+	sendChatRequest: any;
 	selectedConversationId: string;
+	onUpdateConversationName: (conversationId: string, newName: string) => void;
+	latestCreatedConversationId: string | null;
 }
 
 const ChatMain: React.FC<ChatMainProps> = ({
@@ -38,7 +40,9 @@ const ChatMain: React.FC<ChatMainProps> = ({
 	setCopyMessage,
 	setShowFileUploadModal,
 	sendChatRequest,
-	selectedConversationId
+	selectedConversationId,
+	onUpdateConversationName,
+	latestCreatedConversationId
 }) => {
 	// 消息悬停状态管理
 	const [hoveredMessageId, setHoveredMessageId] = useState<string | null>(null);
@@ -169,16 +173,23 @@ const ChatMain: React.FC<ChatMainProps> = ({
 
 			// 如果是新对话，调用setConversation接口创建会话
 			if (isNewConversation) {
-				// 生成新的conversation_id
-				const newConversationId = generateUUID();
-				conversationId = newConversationId;
+				// 使用从chat.tsx传递过来的最新创建的对话ID，而不是重新生成
+				if (!latestCreatedConversationId) {
+					console.error("无法获取最新创建的对话ID");
+					return;
+				}
+
+				conversationId = latestCreatedConversationId;
 
 				// 调用setConversation接口
 				await setConversation({
-					conversation_id: newConversationId,
+					conversation_id: latestCreatedConversationId,
 					name: inputValue, // 使用用户发送的问题作为会话名称
 					user_id: import.meta.env.VITE_USER_ID || '' // 使用环境变量中的USER_ID
 				});
+
+				// 更新侧边栏对话名称为用户的第一个提问内容
+				onUpdateConversationName(latestCreatedConversationId, inputValue);
 			}
 
 			// 使用封装的API函数发送聊天请求
