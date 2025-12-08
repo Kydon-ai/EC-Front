@@ -355,7 +355,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 
 			{/* 聊天输入区域 */}
 			<footer className="bg-white border-t border-gray-200 p-4">
-				<div className="w-full">
+				<div className="w-full rounded-xl border border-gray-300 p-3">
 					{/* 消息输入框 */}
 					<textarea
 						rows={3}
@@ -363,7 +363,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 						value={inputValue}
 						onChange={(e) => setInputValue(e.target.value)}
 						onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleApiRequest()}
-						className="resize-none rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 w-full p-2"
+						className="resize-none border-none focus:outline-none focus:ring-0 w-full p-2"
 					/>
 
 					{/* 按钮区域 - 放在输入框下方右侧 */}
