@@ -485,7 +485,7 @@ const ChatApp: React.FC = () => {
 							placeholder="请输入消息..."
 							value={inputValue}
 							onChange={(e) => setInputValue(e.target.value)}
-							onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
+							onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleApiRequest()}
 							className="resize-none rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 w-full p-2"
 						/>
 
