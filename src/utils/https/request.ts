@@ -82,6 +82,41 @@ class Request {
 	options(url: string, headers?: HeadersInit) {
 		return this._fetch(url, { method: "OPTIONS", headers });
 	}
+
+	/**
+	 * 发起请求并返回原始Response对象（用于处理流式响应等）
+	 * @param url 请求URL
+	 * @param options 请求选项
+	 * @returns Promise<Response> 原始响应对象
+	 */
+	async stream(url: string, options: RequestInit = {}): Promise<Response> {
+		let config: RequestInit & { url: string } = {
+			url: this.baseURL + url,
+			method: options.method || "GET",
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${getAuthToken()}`, // 携带登录Token，通过后端权限校验
+				...this.defaultHeaders,
+				...(options.headers || {}) // 调用时的 headers 覆盖默认 headers
+			},
+			body: options.body,
+		};
+
+		// 请求拦截器
+		for (const interceptor of this.requestInterceptors) {
+			config = await interceptor(config);
+		}
+
+		let response = await fetch(config.url, config);
+
+		// 响应拦截器
+		for (const interceptor of this.responseInterceptors) {
+			response = await interceptor(response);
+		}
+
+		// 返回原始Response对象
+		return response;
+	}
 }
 
 // 导出一个单例

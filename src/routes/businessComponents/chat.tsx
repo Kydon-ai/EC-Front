@@ -2,8 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { useNavigate } from 'react-router-dom';
-import { Button } from 'antd';
+import { ChatMessage, ConversationItem } from '../../interface/chatInterface.ts';
 import { generate_32_md5 } from '../../utils/uuid/uuid.ts';
+import { sendChatRequest } from '../../api/chatApi';
+
 // Markdown样式
 const markdownStyles = `
 /* 确保有序列表显示正确的序号 */
@@ -26,31 +28,7 @@ const markdownStyles = `
   margin-bottom: 0.5rem;
 }
 `;
-// 聊天消息类型定义
-interface ChatMessage {
-	id: string;
-	content: string;
-	sender: 'user' | 'bot';
-	timestamp: string;
-}
 
-// 对话历史项类型定义
-interface ConversationItem {
-	create_date: string;
-	create_time: number;
-	dialog_id: string;
-	id: string;
-	message: Array<{
-		content: string;
-		id: string;
-		role: string;
-		conversationId?: string;
-		doc_ids?: string[];
-		files?: any[];
-	}>;
-	name: string;
-	reference?: any[];
-}
 
 const ChatApp: React.FC = () => {
 	// 导入useNavigate钩子用于路由导航
@@ -248,7 +226,7 @@ const ChatApp: React.FC = () => {
 	};
 
 	// 发起API请求并处理EventStream响应
-	const handleApiRequest = () => {
+	const handleApiRequest = async () => {
 		if (!inputValue.trim()) return;
 		console.log("发起请求")
 		// 获取当前时间
@@ -281,194 +259,58 @@ const ChatApp: React.FC = () => {
 
 		setChatHistory(prev => [...prev, initialAiMessage]);
 
-		// 发起请求
-		fetch('/api/rag/conversation/completion', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				"conversation_id": "67deffecf4254115bb8c29cd9c0f8134",
-				"messages": [
-					{
-						"content": "你好！ 我是你的助理，有什么可以帮到你的吗？",
-						"id": "b2f47ca2-23e0-47bc-a9c9-557689841371",
-						"role": "assistant"
-					},
-					{
-						"id": "806ab24e-d8fe-4079-bca6-0712fa0a1638",
-						"content": inputValue,
-						"role": "user",
-						"files": [],
-						"conversationId": "67deffecf4254115bb8c29cd9c0f8134",
-						"doc_ids": []
+		// 更新AI回复的函数
+		const updateAiResponse = (newContent: string) => {
+			setChatHistory(prev => {
+				// 找到当前AI消息并更新内容
+				return prev.map(msg => {
+					if (msg.id === aiMessageId) {
+						return {
+							...msg,
+							content: newContent
+						};
 					}
-				]
-			})
-		})
-			.then(response => {
-				if (!response.ok) {
-					throw new Error(`HTTP error! status: ${response.status}`);
-				}
-
-				// 获取可读流
-				const reader = response.body?.getReader();
-				if (!reader) {
-					throw new Error('No readable stream');
-				}
-
-				const decoder = new TextDecoder('utf-8');
-				let buffer = '';
-				let isProcessing = false;
-
-				// 读取流的函数
-				const readStream = () => {
-					reader.read().then(({ done, value }) => {
-						if (done) {
-							console.log('Stream ended');
-							// 尝试解析剩余的缓冲数据
-							processData(buffer);
-							return;
-						}
-
-						// 解码新数据
-						buffer += decoder.decode(value, { stream: true });
-
-						// 处理数据
-						processData(buffer);
-
-						// 继续读取
-						readStream();
-					});
-				};
-
-				// 处理数据的函数
-				const processData = (dataBuffer: string) => {
-					// 防止重复处理
-					if (isProcessing) return;
-					isProcessing = true;
-
-					try {
-						// 按行分割数据
-						const lines = dataBuffer.split('\n');
-
-						// 遍历所有行
-						let processedLines = 0;
-						let tempBuffer = '';
-
-						for (let i = 0; i < lines.length; i++) {
-							let line = lines[i];
-
-							// 跳过空行
-							if (!line.trim()) continue;
-
-							// 如果这行是新的SSE事件开始
-							if (line.startsWith('data:')) {
-								// 处理之前累积的tempBuffer（如果有的话）
-								if (tempBuffer) {
-									try {
-										const responseData = JSON.parse(tempBuffer);
-										processResponse(responseData);
-										tempBuffer = '';
-										processedLines = i;
-									} catch (error) {
-										// 如果解析失败，保留tempBuffer，继续累积
-										console.log('Incomplete JSON, continuing to accumulate:', error.message);
-										break;
-									}
-								}
-
-								// 移除'data:'前缀
-								line = line.slice(5).trim();
-
-								// 累积到tempBuffer
-								tempBuffer += line;
-							} else if (tempBuffer) {
-								// 如果已经在累积一个事件的数据，继续添加
-								tempBuffer += line;
-							}
-						}
-
-						// 尝试解析最后一个累积的事件
-						if (tempBuffer) {
-							try {
-								const responseData = JSON.parse(tempBuffer);
-								processResponse(responseData);
-								tempBuffer = '';
-								processedLines = lines.length;
-							} catch (error) {
-								// 如果解析失败，保留在tempBuffer中
-								console.log('Incomplete JSON at end, keeping in buffer:', error.message);
-							}
-						}
-
-						// 更新缓冲区，只保留未处理的行
-						if (processedLines < lines.length) {
-							buffer = lines.slice(processedLines).join('\n');
-						} else {
-							buffer = '';
-						}
-					} finally {
-						isProcessing = false;
-					}
-				};
-
-				// 处理解析后的响应数据
-				const processResponse = (responseData: any) => {
-					console.log('Processed response:', responseData);
-
-					// 检查code是否为0表示成功
-					if (responseData.code === 0) {
-						const data = responseData.data;
-
-						// 检查data是否为true
-						if (data === true) {
-							// 如果data是true，停止更新
-							reader.cancel();
-							return;
-						} else if (typeof data === 'object' && data !== null && 'answer' in data) {
-							// 如果是对象且有answer属性，更新AI回复
-							updateAiResponse(data.answer);
-						}
-					} else {
-						// 处理错误情况
-						console.error('API error:', responseData.message);
-					}
-				};
-
-				// 开始读取流
-				readStream();
-
-				// 更新AI回复的函数
-				const updateAiResponse = (newContent: string) => {
-					setChatHistory(prev => {
-						// 找到当前AI消息并更新内容
-						return prev.map(msg => {
-							if (msg.id === aiMessageId) {
-								return {
-									...msg,
-									content: newContent
-								};
-							}
-							return msg;
-						});
-					});
-				};
-
-			})
-			.catch(error => {
-				console.error('Error:', error);
-				// 添加错误消息
-				setChatHistory(prev => [
-					...prev,
-					{
-						id: `msg-${Date.now() + 2}`,
-						content: `请求失败：${error.message}`,
-						sender: 'bot',
-						timestamp: timeString
-					}
-				]);
+					return msg;
+				});
 			});
+		};
+
+		try {
+			// 使用封装的API函数发送聊天请求
+			await sendChatRequest(
+				{
+					conversation_id: "67deffecf4254115bb8c29cd9c0f8134",
+					messages: [
+						{
+							content: "你好！ 我是你的助理，有什么可以帮到你的吗？",
+							id: "b2f47ca2-23e0-47bc-a9c9-557689841371",
+							role: "assistant"
+						},
+						{
+							id: "806ab24e-d8fe-4079-bca6-0712fa0a1638",
+							content: inputValue,
+							role: "user",
+							files: [],
+							conversationId: "67deffecf4254115bb8c29cd9c0f8134",
+							doc_ids: []
+						}
+					]
+				},
+				updateAiResponse
+			);
+		} catch (error) {
+			console.error('Error:', error);
+			// 添加错误消息
+			setChatHistory(prev => [
+				...prev,
+				{
+					id: `msg-${Date.now() + 2}`,
+					content: `请求失败：${error instanceof Error ? error.message : '未知错误'}`,
+					sender: 'bot',
+					timestamp: timeString
+				}
+			]);
+		}
 	};
 
 	// 关闭文件上传弹窗
