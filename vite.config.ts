@@ -21,6 +21,11 @@ export default defineConfig({
 				changeOrigin: true, // 允许跨域
 				// 不需要重写路径，因为/api/rag已经包含在目标路径中
 			},
+			'/api/llm': {
+				target: 'http://localhost:3000', // 本地RAG服务器地址
+				changeOrigin: true, // 允许跨域
+				// 不需要重写路径，因为/api/rag已经包含在目标路径中
+			},
 		},
 	},
 })

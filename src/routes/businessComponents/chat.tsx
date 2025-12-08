@@ -125,7 +125,7 @@ const ChatApp: React.FC = () => {
 			const selectedConversation = conversationList.find(conv => conv.id === selectedConversationId);
 			if (selectedConversation) {
 				// 将API返回的消息格式转换为聊天界面所需格式
-				const formattedMessages: ChatMessage[] = selectedConversation.message.map((msg, index) => {
+				const formattedMessages: ChatMessage[] = (selectedConversation.message || []).map((msg, index) => {
 					// 根据role确定sender，assistant为bot，其他为user
 					const sender = msg.role === 'assistant' ? 'bot' : 'user';
 					// 使用消息的create_time或当前时间作为时间戳
