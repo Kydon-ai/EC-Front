@@ -80,6 +80,10 @@ const ChatApp: React.FC = () => {
 	const [showFileUploadModal, setShowFileUploadModal] = useState(false);
 	// 对话历史加载状态
 	const [loadingConversations, setLoadingConversations] = useState(false);
+	// API请求状态管理
+	const [isRequestLoading, setIsRequestLoading] = useState(false);
+	// 请求控制器，用于取消请求
+	const requestControllerRef = useRef<{ cancel: () => void } | null>(null);
 
 	// 消息容器引用，用于自动滚动到底部
 	const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -227,6 +231,14 @@ const ChatApp: React.FC = () => {
 
 	// 发起API请求并处理EventStream响应
 	const handleApiRequest = async () => {
+		// 如果已经有请求在进行中，点击则取消
+		if (isRequestLoading && requestControllerRef.current) {
+			requestControllerRef.current.cancel();
+			setIsRequestLoading(false);
+			requestControllerRef.current = null;
+			return;
+		}
+
 		if (!inputValue.trim()) return;
 		console.log("发起请求")
 		// 获取当前时间
@@ -245,6 +257,8 @@ const ChatApp: React.FC = () => {
 
 		// 清空输入框
 		setInputValue('');
+		// 设置请求状态为loading
+		setIsRequestLoading(true);
 
 		// 创建一个唯一ID用于标识此次AI回复
 		const aiMessageId = `msg-${Date.now() + 1}`;
@@ -260,9 +274,12 @@ const ChatApp: React.FC = () => {
 		setChatHistory(prev => [...prev, initialAiMessage]);
 
 		// 更新AI回复的函数
-		const updateAiResponse = (newContent: string, isComplete: boolean) => {
+		const updateAiResponse = (newContent: string, isComplete: boolean, error?: string) => {
 			// 如果是结束信号且内容为空，保持当前内容不变
 			if (isComplete && newContent === '') {
+				// 请求完成或取消，重置loading状态
+				setIsRequestLoading(false);
+				requestControllerRef.current = null;
 				return;
 			}
 			setChatHistory(prev => {
@@ -277,11 +294,17 @@ const ChatApp: React.FC = () => {
 					return msg;
 				});
 			});
+
+			// 如果请求完成，重置loading状态
+			if (isComplete) {
+				setIsRequestLoading(false);
+				requestControllerRef.current = null;
+			}
 		};
 
 		try {
 			// 使用封装的API函数发送聊天请求
-			await sendChatRequest(
+			const controller = await sendChatRequest(
 				{
 					conversation_id: "67deffecf4254115bb8c29cd9c0f8134",
 					messages: [
@@ -302,6 +325,9 @@ const ChatApp: React.FC = () => {
 				},
 				updateAiResponse
 			);
+
+			// 保存请求控制器
+			requestControllerRef.current = controller;
 		} catch (error) {
 			console.error('Error:', error);
 			// 添加错误消息
@@ -314,6 +340,9 @@ const ChatApp: React.FC = () => {
 					timestamp: timeString
 				}
 			]);
+			// 请求失败，重置loading状态
+			setIsRequestLoading(false);
+			requestControllerRef.current = null;
 		}
 	};
 
@@ -560,12 +589,12 @@ const ChatApp: React.FC = () => {
 								📎
 							</button>
 							<button
-								className="p-3 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors"
+								className={`p-3 text-white rounded-full transition-colors ${isRequestLoading ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
 								onClick={handleApiRequest}
-								disabled={!inputValue.trim()}
-								title="发起API请求"
+								disabled={!inputValue.trim() && !isRequestLoading}
+								title={isRequestLoading ? "停止接收更新" : "发起API请求"}
 							>
-								🚀
+								{isRequestLoading ? "⏹️" : "🚀"}
 							</button>
 						</div>
 

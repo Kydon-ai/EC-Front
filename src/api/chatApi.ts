@@ -75,10 +75,16 @@ export const getConversationDetail = async (conversationId: string): Promise<Con
 	}
 };
 
+/**
+ * 发起聊天请求（流式响应）
+ * @param requestData 请求数据
+ * @param onResponse 响应处理回调函数
+ * @returns Promise<{ cancel: () => void }> 返回一个包含取消方法的对象
+ */
 export const sendChatRequest = async (
 	requestData: ChatMessageRequest,
 	onResponse: StreamResponseCallback
-): Promise<void> => {
+): Promise<{ cancel: () => void }> => {
 	try {
 		// 使用request工具的stream方法发起请求
 		const response = await request.stream('/api/rag/conversation/completion', {
@@ -98,14 +104,29 @@ export const sendChatRequest = async (
 		const decoder = new TextDecoder('utf-8');
 		let buffer = '';
 		let isProcessing = false;
+		let isCancelled = false;
+
+		// 取消请求的函数
+		const cancel = () => {
+			if (!isCancelled && reader) {
+				isCancelled = true;
+				reader.cancel();
+				// 通知完成，保持当前渲染的回答不变
+				onResponse('', true);
+			}
+		};
 
 		// 读取流的函数
 		const readStream = () => {
+			if (isCancelled) return;
+			
 			reader.read().then(({ done, value }) => {
-				if (done) {
-					console.log('Stream ended');
-					// 尝试解析剩余的缓冲数据
-					processData(buffer);
+				if (done || isCancelled) {
+					if (!isCancelled) {
+						console.log('Stream ended');
+						// 尝试解析剩余的缓冲数据
+						processData(buffer);
+					}
 					return;
 				}
 
@@ -122,6 +143,8 @@ export const sendChatRequest = async (
 
 		// 处理数据的函数
 		const processData = (dataBuffer: string) => {
+			if (isCancelled) return;
+				
 			// 防止重复处理
 			if (isProcessing) return;
 			isProcessing = true;
@@ -193,6 +216,8 @@ export const sendChatRequest = async (
 
 		// 处理解析后的响应数据
 		const processResponse = (responseData: ApiResponse) => {
+			if (isCancelled) return;
+						
 			console.log('Processed response:', responseData);
 
 			// 检查code是否为0表示成功
@@ -202,9 +227,7 @@ export const sendChatRequest = async (
 				// 检查data是否为true
 				if (data === true) {
 					// 如果data是true，停止更新
-					reader.cancel();
-					// 只通知完成，不传递空内容，保持当前渲染的回答不变
-					onResponse('', true);
+					cancel();
 					return;
 				} else if (typeof data === 'object' && data !== null && 'answer' in data) {
 					// 如果是对象且有answer属性，更新AI回复
@@ -220,8 +243,13 @@ export const sendChatRequest = async (
 		// 开始读取流
 		readStream();
 
+		// 返回包含取消方法的对象
+		return { cancel };
+
 	} catch (error) {
 		console.error('Error:', error);
 		onResponse('', true, (error as Error).message);
+		// 返回一个空的取消函数
+		return { cancel: () => {} };
 	}
 };
