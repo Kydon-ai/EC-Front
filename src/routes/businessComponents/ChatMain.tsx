@@ -3,9 +3,26 @@ import { sendChatRequest, setConversation } from '../../api/chatApi';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import type { Components } from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { copyToClipboard, generateUUID } from '../../utils/chatUtils';
 import { markdownStyles } from '../../utils/chatUtils';
+
+// 处理消息内容，将[ID:\d+]格式的引用标记转换为HTML
+const processMessageContent = (content: string) => {
+	// 匹配[ID:\d+]格式的正则表达式
+	const refRegex = /\[ID:(\d+)\]/g;
+	// const refRegex = /(\d+)\n/g;
+	// 将[ID:\d+]替换为带有特殊样式的HTML
+	return content.replace(refRegex, (match, id) => {
+		return `<span class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs cursor-pointer hover:bg-blue-200 transition-colors relative ref-tag" title="查看引用文档 ID: ${id}">
+                ${id} 
+                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 p-3 bg-gray-800 text-white text-sm rounded-lg shadow-lg opacity-0 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                    引用文档 ID: ${id}
+                </div>
+            </span>`;
+	});
+};
 
 interface ChatMainProps {
 	navigate: any;
@@ -241,6 +258,13 @@ const ChatMain: React.FC<ChatMainProps> = ({
 		<div className="flex-1 flex flex-col">
 			{/* 注入Markdown样式 */}
 			<style dangerouslySetInnerHTML={{ __html: markdownStyles }} />
+			{/* 引用标记悬停样式 */}
+			<style dangerouslySetInnerHTML={{
+				__html:
+					`.ref-tag:hover div {
+				opacity: 1;
+			}`
+			}} />
 			{/* 聊天应用头部 */}
 			<header className="bg-white shadow-md py-3 px-6">
 				<div className="flex items-center justify-between">
@@ -278,7 +302,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 								</div>
 							)}
 							<div className={`markdown-content max-w-[75%] min-w-[100px] ${message.sender === 'user' ? 'bg-blue-500 text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none'} rounded-lg p-4 shadow-sm relative`}>
-								<ReactMarkdown rehypePlugins={[rehypeRaw]}>{message.content}</ReactMarkdown>
+								<ReactMarkdown rehypePlugins={[rehypeRaw]}>{processMessageContent(message.content)}</ReactMarkdown>
 								<div className={`mt-2 text-xs ${message.sender === 'user' ? 'text-blue-100' : 'text-gray-400'} text-right`}>{message.timestamp}</div>
 
 								{/* 复制按钮 - 仅在悬停时显示 */}
