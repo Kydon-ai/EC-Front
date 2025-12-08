@@ -362,7 +362,8 @@ const ChatMain: React.FC<ChatMainProps> = ({
 						placeholder="请输入消息..."
 						value={inputValue}
 						onChange={(e) => setInputValue(e.target.value)}
-						onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleApiRequest()}
+						onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); } }}
+						onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { handleApiRequest(); } }}
 						className="resize-none border-none focus:outline-none focus:ring-0 w-full p-2"
 					/>
 
