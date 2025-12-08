@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChatMessage, ConversationItem } from '../../interface/chatInterface.ts';
 import { generate_32_md5 } from '../../utils/uuid/uuid.ts';
-import { sendChatRequest, getConversationDetail } from '../../api/chatApi';
+import { sendChatRequest, getConversationDetail, deleteConversation } from '../../api/chatApi';
 import ConversationHistory from './ConversationHistory';
 import ChatMain from './ChatMain';
 import FileUploadModal from './FileUploadModal';
@@ -131,18 +131,26 @@ const ChatApp: React.FC = () => {
 	};
 
 	// 删除对话函数
-	const handleDeleteConversation = (conversationId: string) => {
-		// 从对话列表中移除
-		setConversationList(prev => prev.filter(item => item.id !== conversationId));
+	const handleDeleteConversation = async (conversationId: string) => {
+		try {
+			// 调用API删除对话
+			await deleteConversation([conversationId]);
 
-		// 如果删除的是当前选中的对话
-		if (selectedConversationId === conversationId) {
-			// 选择第一个对话或者清空选择
-			const newSelectedId = conversationList.length > 1 ? conversationList.find(item => item.id !== conversationId)?.id : '';
-			setSelectedConversationId(newSelectedId || '');
+			// 从对话列表中移除
+			setConversationList(prev => prev.filter(item => item.id !== conversationId));
 
-			// 清空聊天历史
-			setChatHistory([]);
+			// 如果删除的是当前选中的对话
+			if (selectedConversationId === conversationId) {
+				// 选择第一个对话或者清空选择
+				const newSelectedId = conversationList.length > 1 ? conversationList.find(item => item.id !== conversationId)?.id : '';
+				setSelectedConversationId(newSelectedId || '');
+
+				// 清空聊天历史
+				setChatHistory([]);
+			}
+		} catch (error) {
+			console.error('删除对话失败:', error);
+			// 可以在这里添加用户提示
 		}
 	};
 

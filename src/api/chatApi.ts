@@ -164,6 +164,24 @@ export const getConversationDetail = async (conversationId: string): Promise<Con
 	}
 };
 
+// 删除对话API
+interface DeleteConversationRequest {
+	conversation_ids: string[];
+}
+
+export const deleteConversation = async (conversationIds: string[]): Promise<ApiResponse> => {
+	try {
+		// 使用request.post方法发起DELETE请求
+		const response = await request.post('/api/llm/conversation/rm', {
+			conversation_ids: conversationIds
+		});
+		return response;
+	} catch (error) {
+		console.error('删除对话失败:', error);
+		throw error;
+	}
+};
+
 /**
  * 发起聊天请求（流式响应）
  * @param requestData 请求数据
