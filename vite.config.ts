@@ -16,12 +16,7 @@ export default defineConfig({
 			// 	rewrite: (path) => path.replace(/^\/api/, ''), // 重写路径，将/api前缀去掉
 			// },
 			// 本地RAG API代理
-			'/api/rag': {
-				target: 'http://localhost:3000', // 本地RAG服务器地址
-				changeOrigin: true, // 允许跨域
-				// 不需要重写路径，因为/api/rag已经包含在目标路径中
-			},
-			'/api/llm': {
+			'/api': {
 				target: 'http://localhost:3000', // 本地RAG服务器地址
 				changeOrigin: true, // 允许跨域
 				// 不需要重写路径，因为/api/rag已经包含在目标路径中

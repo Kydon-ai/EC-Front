@@ -327,6 +327,27 @@ const ChatApp: React.FC = () => {
 		setInputValue(tip);
 	};
 
+	// 复制文本到剪贴板
+	const [copyMessage, setCopyMessage] = useState<string | null>(null);
+
+	const copyToClipboard = async (text: string) => {
+		try {
+			await navigator.clipboard.writeText(text);
+			// 显示复制成功提示
+			setCopyMessage('复制成功！');
+			// 3秒后自动隐藏提示
+			setTimeout(() => setCopyMessage(null), 3000);
+			console.log('文本已复制到剪贴板');
+		} catch (err) {
+			setCopyMessage('复制失败');
+			setTimeout(() => setCopyMessage(null), 3000);
+			console.error('复制失败:', err);
+		}
+	};
+
+	// 消息悬停状态管理
+	const [hoveredMessageId, setHoveredMessageId] = useState<string | null>(null);
+
 	return (
 		<div className="flex h-screen bg-gray-50">
 			{/* 左侧对话历史面板 */}
@@ -439,16 +460,33 @@ const ChatApp: React.FC = () => {
 						{chatHistory.map((message) => (
 							<div
 								key={message.id}
-								className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
+								className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4 relative group`}
+								onMouseEnter={() => setHoveredMessageId(message.id)}
+								onMouseLeave={() => setHoveredMessageId(null)}
+								onDoubleClick={() => copyToClipboard(message.content)}
 							>
 								{message.sender === 'bot' && (
 									<div className="mr-3 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
 										🤖
 									</div>
 								)}
-								<div className={`markdown-content max-w-[75%] ${message.sender === 'user' ? 'bg-blue-500 text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none'} rounded-lg p-4 shadow-sm`}>
+								<div className={`markdown-content max-w-[75%] min-w-[100px] ${message.sender === 'user' ? 'bg-blue-500 text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none'} rounded-lg p-4 shadow-sm relative`}>
 									<ReactMarkdown rehypePlugins={[rehypeRaw]} >{message.content}</ReactMarkdown>
 									<div className={`mt-2 text-xs ${message.sender === 'user' ? 'text-blue-100' : 'text-gray-400'} text-right`}>{message.timestamp}</div>
+
+									{/* 复制按钮 - 仅在悬停时显示 */}
+									<button
+										className={`absolute top-2 right-2 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity ${message.sender === 'user' ? 'text-blue-100 hover:text-white' : 'text-gray-400 hover:text-gray-600'}`}
+										onClick={() => copyToClipboard(message.content)}
+										title="复制消息"
+									>
+										📋
+									</button>
+
+									{/* 双击提示 - 仅在悬停时显示 */}
+									<div className={`absolute bottom-2 right-2 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity ${message.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+										双击复制
+									</div>
 								</div>
 								{message.sender === 'user' && (
 									<div className="ml-3 w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 shadow-sm">
@@ -458,6 +496,13 @@ const ChatApp: React.FC = () => {
 							</div>
 						))}
 						<div ref={messagesEndRef} />
+
+						{/* 复制成功提示 - 移动到页面上半部分 */}
+						{copyMessage && (
+							<div className="fixed top-1/8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg opacity-90 transition-opacity z-50">
+								{copyMessage}
+							</div>
+						)}
 
 
 						<div className="flex justify-center mt-8">
