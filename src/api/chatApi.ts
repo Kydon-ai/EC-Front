@@ -1,5 +1,27 @@
 import request from '../utils/https/request';
 
+// 对话详情数据结构接口
+export interface ConversationDetail {
+	avatar: string;
+	create_date: string;
+	create_time: number;
+	dialog_id: string;
+	id: string;
+	message: Array<{
+		content: string;
+		id: string;
+		role: string;
+		files?: any[];
+		conversationId?: string;
+		doc_ids?: string[];
+	}>;
+	name: string;
+	reference: any[];
+	update_date: string;
+	update_time: number;
+	user_id: string;
+}
+
 // 定义API响应类型
 interface ApiResponse {
 	code: number;
@@ -33,6 +55,26 @@ type StreamResponseCallback = (
  * @param onResponse 响应处理回调函数
  * @returns Promise<void>
  */
+/**
+ * 获取对话详情
+ * @param conversationId 对话ID
+ * @returns Promise<ConversationDetail | null>
+ */
+export const getConversationDetail = async (conversationId: string): Promise<ConversationDetail | null> => {
+	try {
+		// 使用request.get方法发起GET请求
+		const response = await request.get(`/api/llm/conversation/get?conversation_id=${conversationId}`);
+
+		if (response.code === 0 && response.data) {
+			return response.data;
+		}
+		return null;
+	} catch (error) {
+		console.error('获取对话详情失败:', error);
+		return null;
+	}
+};
+
 export const sendChatRequest = async (
 	requestData: ChatMessageRequest,
 	onResponse: StreamResponseCallback

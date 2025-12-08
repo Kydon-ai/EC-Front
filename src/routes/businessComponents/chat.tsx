@@ -4,7 +4,7 @@ import rehypeRaw from 'rehype-raw';
 import { useNavigate } from 'react-router-dom';
 import { ChatMessage, ConversationItem } from '../../interface/chatInterface.ts';
 import { generate_32_md5 } from '../../utils/uuid/uuid.ts';
-import { sendChatRequest } from '../../api/chatApi';
+import { sendChatRequest, getConversationDetail } from '../../api/chatApi';
 
 // Markdown样式
 const markdownStyles = `
@@ -402,7 +402,23 @@ const ChatApp: React.FC = () => {
 							<div
 								key={conversation.id}
 								className={`p-3 rounded-lg cursor-pointer transition-all duration-200 mb-2 relative ${selectedConversationId === conversation.id ? 'bg-blue-50 border-l-4 border-blue-500 shadow-sm' : 'hover:bg-gray-50'}`}
-								onClick={() => setSelectedConversationId(conversation.id)}
+								onClick={async () => {
+									// 设置选中的对话ID
+									setSelectedConversationId(conversation.id);
+									// 请求对话详情
+									const detail = await getConversationDetail(conversation.id);
+									if (detail) {
+										// 将message数组转换为chatHistory格式
+										const messages: ChatMessage[] = detail.message.map((msg) => ({
+											id: msg.id,
+											content: msg.content,
+											sender: msg.role === 'assistant' ? 'bot' : 'user',
+											timestamp: new Date(detail.update_time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+										}));
+										// 更新聊天历史
+										setChatHistory(messages);
+									}
+								}}
 							>
 								{!sidebarCollapsed && <div className="text-sm font-medium text-gray-800 truncate">{conversation.name}</div>}
 								{!sidebarCollapsed && <div className="text-xs text-gray-500 mt-1">{new Date(conversation.create_time).toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>}
