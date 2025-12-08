@@ -72,7 +72,11 @@ const AppLayout = () => {
 				)}
 				<main className="content">
 					<div style={{ minHeight: "100vh", backgroundColor: "darkgray" }}>
-						<div style={{ maxWidth: '80vw', margin: 'auto', }}>
+						{/* 对chat路由应用100%宽度，其他路由保持80vw最大宽度 */}
+						<div style={{
+							maxWidth: location.pathname === '/chat' ? '100vw' : '80vw',
+							margin: 'auto',
+						}}>
 							<Routes>
 								<Route path="/" element={<Home />} />
 								<Route path="/home" element={<Home />} />

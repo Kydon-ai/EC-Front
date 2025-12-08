@@ -1,10 +1,10 @@
 import { ChatMessage } from '../../interface/chatInterface';
-import { sendChatRequest } from '../../api/chatApi';
-import React, { useState, useRef, useEffect } from 'react';
+import { sendChatRequest, setConversation } from '../../api/chatApi';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
-import { copyToClipboard } from '../../utils/chatUtils';
+import { copyToClipboard, generateUUID } from '../../utils/chatUtils';
 import { markdownStyles } from '../../utils/chatUtils';
 
 interface ChatMainProps {
@@ -21,6 +21,7 @@ interface ChatMainProps {
 	setCopyMessage: React.Dispatch<React.SetStateAction<string | null>>;
 	setShowFileUploadModal: React.Dispatch<React.SetStateAction<boolean>>;
 	sendChatRequest: typeof sendChatRequest;
+	selectedConversationId: string;
 }
 
 const ChatMain: React.FC<ChatMainProps> = ({
@@ -36,7 +37,8 @@ const ChatMain: React.FC<ChatMainProps> = ({
 	copyMessage,
 	setCopyMessage,
 	setShowFileUploadModal,
-	sendChatRequest
+	sendChatRequest,
+	selectedConversationId
 }) => {
 	// 消息悬停状态管理
 	const [hoveredMessageId, setHoveredMessageId] = useState<string | null>(null);
@@ -161,22 +163,35 @@ const ChatMain: React.FC<ChatMainProps> = ({
 		};
 
 		try {
+			// 检查是否是新对话
+			const isNewConversation = chatHistory.length === 0;
+			let conversationId = selectedConversationId;
+
+			// 如果是新对话，调用setConversation接口创建会话
+			if (isNewConversation) {
+				// 生成新的conversation_id
+				const newConversationId = generateUUID();
+				conversationId = newConversationId;
+
+				// 调用setConversation接口
+				await setConversation({
+					conversation_id: newConversationId,
+					name: inputValue, // 使用用户发送的问题作为会话名称
+					user_id: import.meta.env.VITE_USER_ID || '' // 使用环境变量中的USER_ID
+				});
+			}
+
 			// 使用封装的API函数发送聊天请求
 			const controller = await sendChatRequest(
 				{
-					conversation_id: "67deffecf4254115bb8c29cd9c0f8134",
+					conversation_id: conversationId,
 					messages: [
-						{
-							content: "你好！ 我是你的助理，有什么可以帮到你的吗？",
-							id: "b2f47ca2-23e0-47bc-a9c9-557689841371",
-							role: "assistant"
-						},
 						{
 							id: "806ab24e-d8fe-4079-bca6-0712fa0a1638",
 							content: inputValue,
 							role: "user",
 							files: [],
-							conversationId: "67deffecf4254115bb8c29cd9c0f8134",
+							conversationId: conversationId,
 							doc_ids: []
 						}
 					]

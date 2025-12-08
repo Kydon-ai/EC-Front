@@ -1,5 +1,12 @@
 import request from '../utils/https/request';
 
+// 定义设置会话请求类型
+interface SetConversationRequest {
+	conversation_id: string;
+	name: string;
+	user_id: string;
+}
+
 // 对话详情数据结构接口
 export interface ConversationDetail {
 	avatar: string;
@@ -48,6 +55,88 @@ type StreamResponseCallback = (
 	isComplete: boolean,
 	error?: string
 ) => void;
+
+/**
+ * 设置会话
+ * @param requestData 请求数据
+ * @returns Promise<ApiResponse>
+ */
+export const setConversation = async (requestData: SetConversationRequest): Promise<ApiResponse> => {
+	try {
+		// 使用request工具的stream方法发起请求，因为接口返回SSE格式数据
+		const response = await request.stream('/api/llm/conversation/set', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(requestData)
+		});
+
+		// 获取可读流
+		const reader = response.body?.getReader();
+		if (!reader) {
+			throw new Error('No readable stream');
+		}
+
+		const decoder = new TextDecoder('utf-8');
+		let buffer = '';
+		let isCancelled = false;
+
+		// 取消请求的函数
+		const cancel = () => {
+			if (!isCancelled && reader) {
+				isCancelled = true;
+				reader.cancel();
+			}
+		};
+
+		// 读取流并解析SSE数据
+		const readStream = (): Promise<ApiResponse> => {
+			return reader.read().then(({ done, value }) => {
+				if (done || isCancelled) {
+					throw new Error('Stream ended prematurely');
+				}
+
+				// 解码新数据
+				buffer += decoder.decode(value, { stream: true });
+
+				// 按行分割数据
+				const lines = buffer.split('\n');
+
+				// 遍历所有行查找完整的SSE消息
+				for (const line of lines) {
+					if (line.trim() === '') continue;
+
+					// 如果这行是SSE数据行
+					if (line.startsWith('data:')) {
+						// 移除'data:'前缀
+						const dataStr = line.slice(5).trim();
+
+						try {
+							// 解析JSON数据
+							const responseData: ApiResponse = JSON.parse(dataStr);
+							// 关闭流并返回解析结果
+							cancel();
+							return responseData;
+						} catch (error) {
+							// 如果解析失败，继续处理下一行
+							console.log('Incomplete JSON, continuing to process:', (error as Error).message);
+						}
+					}
+				}
+
+				// 如果没有找到完整的SSE消息，继续读取
+				return readStream();
+			});
+		};
+
+		// 开始读取流并等待解析结果
+		return readStream();
+	} catch (error) {
+		console.error('设置会话失败:', error);
+		throw error;
+	}
+};
 
 /**
  * 发起聊天请求（流式响应）
@@ -119,7 +208,7 @@ export const sendChatRequest = async (
 		// 读取流的函数
 		const readStream = () => {
 			if (isCancelled) return;
-			
+
 			reader.read().then(({ done, value }) => {
 				if (done || isCancelled) {
 					if (!isCancelled) {
@@ -144,7 +233,7 @@ export const sendChatRequest = async (
 		// 处理数据的函数
 		const processData = (dataBuffer: string) => {
 			if (isCancelled) return;
-				
+
 			// 防止重复处理
 			if (isProcessing) return;
 			isProcessing = true;
@@ -217,7 +306,7 @@ export const sendChatRequest = async (
 		// 处理解析后的响应数据
 		const processResponse = (responseData: ApiResponse) => {
 			if (isCancelled) return;
-						
+
 			console.log('Processed response:', responseData);
 
 			// 检查code是否为0表示成功
@@ -250,6 +339,6 @@ export const sendChatRequest = async (
 		console.error('Error:', error);
 		onResponse('', true, (error as Error).message);
 		// 返回一个空的取消函数
-		return { cancel: () => {} };
+		return { cancel: () => { } };
 	}
 };

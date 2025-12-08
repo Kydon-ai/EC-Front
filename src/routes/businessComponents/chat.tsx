@@ -8,8 +8,6 @@ import ChatMain from './ChatMain';
 import FileUploadModal from './FileUploadModal';
 
 
-
-
 const ChatApp: React.FC = () => {
 	// 导入useNavigate钩子用于路由导航
 	const navigate = useNavigate();
@@ -178,6 +176,7 @@ const ChatApp: React.FC = () => {
 				setCopyMessage={setCopyMessage}
 				setShowFileUploadModal={setShowFileUploadModal}
 				sendChatRequest={sendChatRequest}
+				selectedConversationId={selectedConversationId}
 			/>
 
 			{/* 文件上传弹窗 */}
