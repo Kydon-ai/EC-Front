@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'antd';
-
+import { generate_32_md5 } from '../../utils/uuid/uuid.ts';
 // Markdown样式
 const markdownStyles = `
 /* 确保有序列表显示正确的序号 */
@@ -70,6 +70,8 @@ const ChatApp: React.FC = () => {
 	const [conversationList, setConversationList] = useState<ConversationItem[]>([]);
 	// 当前选中的对话ID
 	const [selectedConversationId, setSelectedConversationId] = useState<string>('');
+	// 侧边栏折叠状态
+	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
 	// 模拟聊天历史记录，使用useState管理
 	const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
@@ -201,6 +203,48 @@ const ChatApp: React.FC = () => {
 			};
 			setChatHistory(prev => [...prev, botMessage]);
 		}, 500);
+	};
+
+	// 新建对话函数
+	const handleNewConversation = () => {
+		// 生成新的conversation_id
+		const newConversationId = generate_32_md5();
+
+		// 创建新对话对象
+		const newConversation: ConversationItem = {
+			create_date: new Date().toISOString().split('T')[0],
+			create_time: Date.now(),
+			dialog_id: newConversationId,
+			id: newConversationId,
+			message: [],
+			name: '新对话',
+			reference: []
+		};
+
+		// 添加到对话列表
+		setConversationList(prev => [newConversation, ...prev]);
+
+		// 选中新对话
+		setSelectedConversationId(newConversationId);
+
+		// 清空聊天历史
+		setChatHistory([]);
+	};
+
+	// 删除对话函数
+	const handleDeleteConversation = (conversationId: string) => {
+		// 从对话列表中移除
+		setConversationList(prev => prev.filter(item => item.id !== conversationId));
+
+		// 如果删除的是当前选中的对话
+		if (selectedConversationId === conversationId) {
+			// 选择第一个对话或者清空选择
+			const newSelectedId = conversationList.length > 1 ? conversationList.find(item => item.id !== conversationId)?.id : '';
+			setSelectedConversationId(newSelectedId || '');
+
+			// 清空聊天历史
+			setChatHistory([]);
+		}
 	};
 
 	// 发起API请求并处理EventStream响应
@@ -440,14 +484,47 @@ const ChatApp: React.FC = () => {
 	return (
 		<div className="flex h-screen bg-gray-50">
 			{/* 左侧对话历史面板 */}
-			<div className="w-72 bg-white border-r border-gray-200 flex flex-col">
+			<div className={`${sidebarCollapsed ? 'w-[60px]' : 'w-72'} border-r border-gray-200 flex flex-col bg-white transition-all duration-300`}>
 				{/* 对话历史标题栏 */}
 				<div className="p-4 border-b border-gray-200">
-					<h2 className="text-lg font-semibold text-gray-800">对话历史</h2>
+					<div className="text-lg font-bold text-gray-800 flex items-center justify-between">
+						对话历史
+						<button
+							className="p-1 hover:bg-gray-200 rounded-md transition-colors"
+							onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+							aria-label={sidebarCollapsed ? '展开侧边栏' : '折叠侧边栏'}
+						>
+							{sidebarCollapsed ? '>' : '<'}
+						</button>
+					</div>
 				</div>
+
+				{/* 新建对话按钮 */}
+				{!sidebarCollapsed ? (
+					<div className="p-2">
+						<button
+							className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-3 flex items-center justify-center gap-2 transition-colors"
+							onClick={handleNewConversation}
+						>
+							<span>+</span>
+							<span>新建对话</span>
+						</button>
+					</div>
+				) : (
+					<div className="p-1.5 flex justify-center">
+						<button
+							className="w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center justify-center transition-colors"
+							onClick={handleNewConversation}
+							title="新建对话"
+						>
+							+
+						</button>
+					</div>
+				)}
 
 				{/* 对话历史列表 */}
 				<div className="flex-1 overflow-y-auto p-2">
+					{!sidebarCollapsed && <div className="text-sm font-semibold text-gray-500 mb-2">对话历史列表</div>}
 					{loadingConversations ? (
 						<div className="p-8 text-center text-gray-500 flex flex-col items-center">
 							<div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-2"></div>
@@ -457,20 +534,34 @@ const ChatApp: React.FC = () => {
 						conversationList.map((conversation) => (
 							<div
 								key={conversation.id}
-								className={`p-3 rounded-lg mb-2 cursor-pointer transition-all duration-200 ${selectedConversationId === conversation.id ? 'bg-blue-50 border-l-4 border-blue-500 shadow-sm' : 'hover:bg-gray-50 hover:shadow-sm'}`}
+								className={`p-3 rounded-lg cursor-pointer transition-all duration-200 mb-2 relative ${selectedConversationId === conversation.id ? 'bg-blue-50 border-l-4 border-blue-500 shadow-sm' : 'hover:bg-gray-50'}`}
 								onClick={() => setSelectedConversationId(conversation.id)}
 							>
-								<div className="text-sm font-medium text-gray-800 truncate">{conversation.name}</div>
-								<div className="text-xs text-gray-500 mt-1">{new Date(conversation.create_time).toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
+								{!sidebarCollapsed && <div className="text-sm font-medium text-gray-800 truncate">{conversation.name}</div>}
+								{!sidebarCollapsed && <div className="text-xs text-gray-500 mt-1">{new Date(conversation.create_time).toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>}
+
+								{/* 删除按钮 - 仅在侧边栏展开且鼠标悬停时显示 */}
+								{!sidebarCollapsed && (
+									<button
+										className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-500 rounded hover:bg-gray-100 transition-colors opacity-0 hover:opacity-100"
+										onClick={(e) => {
+											e.stopPropagation(); // 阻止事件冒泡，避免触发选择对话
+											handleDeleteConversation(conversation.id);
+										}}
+										aria-label="删除对话"
+										title="删除对话"
+									>
+										✕
+									</button>
+								)}
 							</div>
 						))
-					) : (
+					) : !sidebarCollapsed ? (
 						<div className="p-8 text-center text-gray-500 flex flex-col items-center">
-							<div className="text-4xl mb-2">💬</div>
-							<div>暂无对话历史</div>
-							<div className="text-xs mt-2">开始一段新对话吧</div>
+							<div className="text-4xl mb-3">💬</div>
+							<div>开始一段新对话吧</div>
 						</div>
-					)}
+					) : null}
 				</div>
 			</div>
 
@@ -498,7 +589,7 @@ const ChatApp: React.FC = () => {
 
 				{/* 聊天内容区域 */}
 				<main className="flex-1 overflow-y-auto p-6 bg-gray-50">
-					<div className="max-w-3xl mx-auto space-y-6">
+					<div className="space-y-6">
 						{chatHistory.map((message) => (
 							<div
 								key={message.id}
@@ -541,17 +632,19 @@ const ChatApp: React.FC = () => {
 
 				{/* 聊天输入区域 */}
 				<footer className="bg-white border-t border-gray-200 p-4">
-					<div className="max-w-3xl mx-auto">
-						{/* 消息输入框和按钮区域 */}
-						<div className="flex items-end gap-3">
-							<textarea
-								rows={3}
-								placeholder="请输入消息..."
-								value={inputValue}
-								onChange={(e) => setInputValue(e.target.value)}
-								onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
-								className="resize-none rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 flex-1 p-2"
-							/>
+					<div className="w-full">
+						{/* 消息输入框 */}
+						<textarea
+							rows={3}
+							placeholder="请输入消息..."
+							value={inputValue}
+							onChange={(e) => setInputValue(e.target.value)}
+							onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
+							className="resize-none rounded-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 w-full p-2"
+						/>
+
+						{/* 按钮区域 - 放在输入框下方右侧 */}
+						<div className="flex justify-end gap-3 mt-2">
 							<button
 								className="p-3 bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition-colors"
 								title="上传文件"
@@ -559,14 +652,6 @@ const ChatApp: React.FC = () => {
 							>
 								📎
 							</button>
-							{/* 本地测试按钮 没啥用了 */}
-							{/* <button
-								className="p-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
-								onClick={handleSendMessage}
-								disabled={!inputValue.trim()}
-							>
-								→
-							</button> */}
 							<button
 								className="p-3 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors"
 								onClick={handleApiRequest}
