@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
 	Tabs,
 	Upload,
@@ -111,6 +112,7 @@ const mockDocuments = [
 ];
 
 const DocumentCenter: React.FC = () => {
+	const navigate = useNavigate();
 	// 上传功能状态
 	const [fileList, setFileList] = useState<any[]>([]);
 	const [form] = Form.useForm();
@@ -477,7 +479,17 @@ const DocumentCenter: React.FC = () => {
 
 	return (
 		<div style={{ padding: '20px', margin: '0 auto' }}>
-			<Card title={<Title level={2}>文档中心</Title>}>
+			<Card
+				title={<Title level={2}>文档中心</Title>}
+				extra={
+					<Button
+						type="primary"
+						onClick={() => navigate('/insight-dashboard')}
+					>
+						数据洞察
+					</Button>
+				}
+			>
 				<Tabs
 					items={[
 						{

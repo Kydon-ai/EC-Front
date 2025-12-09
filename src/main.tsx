@@ -56,7 +56,7 @@ const items = [
 // 创建布局组件以使用useLocation钩子
 const AppLayout = () => {
 	const location = useLocation();
-	const specialRouter = ['/chat', '/document-management', '/insight-dashboard'];
+	const specialRouter = ['/', '/chat', '/document-management', '/insight-dashboard'];
 	return (
 		<WindowSizeProvider>
 			<div className="layout">
@@ -77,7 +77,7 @@ const AppLayout = () => {
 							}}
 						>
 							<Routes>
-								<Route path="/" element={<Home />} />
+								<Route path="/" element={<ChatApp />} />
 								<Route path="/home" element={<Home />} />
 								<Route path="/demo" element={<ShowDemo />} />
 								<Route path="/tailwind-demo" element={<TailwindDemo />} />
