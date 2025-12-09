@@ -17,6 +17,7 @@
     "@arco-design/web-react": "^2.66.8",
     "@reduxjs/toolkit": "^2.2.7",
     "antd": "^6.0.0",
+    "echarts": "^6.0.0",
     "prismjs": "^1.29.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

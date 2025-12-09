@@ -18,6 +18,7 @@ import Home from "./routes/Home.tsx";
 import TailwindDemo from "./routes/TailwindDemo.tsx";
 import ChatApp from "./routes/businessComponents/chat.tsx";
 import DocumentCenter from "./routes/businessComponents/DocumentCenter.tsx";
+import InsightDashboard from "./routes/businessComponents/InsightDashboard.tsx";
 import AboutAuthor from "./routes/normal/AboutAuthor.tsx"
 import AboutProject from "./routes/normal/AboutProject.tsx"
 import ConcatMe from "./routes/normal/ConcatMe.tsx"
@@ -79,6 +80,7 @@ const AppLayout = () => {
 								<Route path="/tailwind-demo" element={<TailwindDemo />} />
 								<Route path="/chat" element={<ChatApp />} />
 								<Route path="/document-management" element={<DocumentCenter />} />
+								<Route path="/insight-dashboard" element={<InsightDashboard />} />
 
 								<Route path="/about-project" element={<AuthGuard><AboutProject /></AuthGuard>} />
 								{/* <Route path="/about-author" element={<AboutAuthor />} /> */}
