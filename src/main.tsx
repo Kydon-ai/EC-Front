@@ -57,7 +57,7 @@ const items = [
 // 创建布局组件以使用useLocation钩子
 const AppLayout = () => {
 	const location = useLocation();
-	const specialRouter = ["/chat", "/document-management"]
+	const specialRouter = ["/chat", "/document-management", "/insight-dashboard"]
 	return (
 		<WindowSizeProvider>
 			<div className="layout">

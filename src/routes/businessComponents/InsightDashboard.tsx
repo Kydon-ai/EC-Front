@@ -1,13 +1,36 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Card, Tabs, Typography, Table, Tag, Space, Button, DatePicker } from 'antd';
+import { Card, Tabs, Typography, Table, Tag, Space, Button, DatePicker, message } from 'antd';
 import * as echarts from 'echarts';
 import { FireOutlined, BarChartOutlined, FileSearchOutlined, DownloadOutlined } from '@ant-design/icons';
+import request from '../../utils/https/request';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 const { RangePicker } = DatePicker;
 
-// 模拟数据 - 实际项目中应该从API获取
+// 接口返回数据类型定义
+interface QuestionStats {
+  question: string;
+  count: number;
+  zeroHitCount: number;
+  zeroHitRate: number;
+  lastAskedAt: string;
+  createdAt: string;
+}
+
+interface StatsSummary {
+  totalQuestions: number;
+  totalQuestionAsks: number;
+  totalZeroHits: number;
+  totalZeroHitRate: number;
+}
+
+interface ApiResponse {
+  questions: QuestionStats[];
+  summary: StatsSummary;
+}
+
+// 模拟数据 - 知识点热力图数据
 const mockKnowledgeHeatmapData = [
   { name: '招商标准及入驻规范.pdf', references: 128, category: '业务规范' },
   { name: '产品功能说明书.pdf', references: 95, category: '产品文档' },
@@ -21,32 +44,6 @@ const mockKnowledgeHeatmapData = [
   { name: '人力资源政策.docx', references: 18, category: 'HR文档' },
 ];
 
-const mockTopQuestions = [
-  { rank: 1, question: '如何申请入驻平台？', count: 234, category: '入驻流程' },
-  { rank: 2, question: '平台的收费标准是什么？', count: 189, category: '费用说明' },
-  { rank: 3, question: '如何修改账户信息？', count: 156, category: '账户管理' },
-  { rank: 4, question: '订单如何取消？', count: 142, category: '订单管理' },
-  { rank: 5, question: '退款流程是怎样的？', count: 128, category: '退款说明' },
-  { rank: 6, question: '如何联系客服？', count: 115, category: '客服支持' },
-  { rank: 7, question: '平台支持哪些支付方式？', count: 98, category: '支付方式' },
-  { rank: 8, question: '如何查看交易记录？', count: 87, category: '交易管理' },
-  { rank: 9, question: '账户被冻结怎么办？', count: 76, category: '账户问题' },
-  { rank: 10, question: '如何修改密码？', count: 68, category: '账户安全' },
-];
-
-const mockZeroHitQuestions = [
-  { id: 1, question: '平台是否支持国际支付？', askedAt: '2024-01-15 10:30:22', user: '用户A' },
-  { id: 2, question: '如何申请成为平台的服务商？', askedAt: '2024-01-15 14:22:18', user: '用户B' },
-  { id: 3, question: '平台的数据分析功能如何使用？', askedAt: '2024-01-16 09:15:45', user: '用户C' },
-  { id: 4, question: '如何批量导入数据？', askedAt: '2024-01-16 11:45:32', user: '用户D' },
-  { id: 5, question: '平台是否有API接口？', askedAt: '2024-01-16 16:20:15', user: '用户E' },
-  { id: 6, question: '如何设置自动回复？', askedAt: '2024-01-17 08:55:48', user: '用户F' },
-  { id: 7, question: '平台的存储容量是多少？', askedAt: '2024-01-17 13:12:05', user: '用户G' },
-  { id: 8, question: '如何导出数据报告？', askedAt: '2024-01-17 15:33:22', user: '用户H' },
-  { id: 9, question: '平台支持哪些语言？', askedAt: '2024-01-18 10:18:55', user: '用户I' },
-  { id: 10, question: '如何设置权限管理？', askedAt: '2024-01-18 14:45:12', user: '用户J' },
-];
-
 const InsightDashboard: React.FC = () => {
   // 图表引用
   const heatmapChartRef = useRef<HTMLDivElement>(null);
@@ -54,6 +51,32 @@ const InsightDashboard: React.FC = () => {
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
   const [heatmapChart, setHeatmapChart] = useState<echarts.ECharts | null>(null);
   const [topQuestionsChart, setTopQuestionsChart] = useState<echarts.ECharts | null>(null);
+
+  // API数据状态
+  const [questionStats, setQuestionStats] = useState<QuestionStats[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
+
+  // 获取问题统计数据
+  const fetchQuestionStats = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const response = await request.get('/api/stats/questions');
+      if (response.status === 'success' && response.data) {
+        setQuestionStats(response.data.questions);
+      } else {
+        setError('获取数据失败');
+        message.error('获取数据失败');
+      }
+    } catch (err) {
+      console.error('API请求错误:', err);
+      setError('API请求错误');
+      message.error('API请求错误');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 初始化图表
   useEffect(() => {
@@ -81,6 +104,11 @@ const InsightDashboard: React.FC = () => {
       heatmapChart?.dispose();
       topQuestionsChart?.dispose();
     };
+  }, [questionStats, loading]);
+
+  // 组件挂载时获取数据
+  useEffect(() => {
+    fetchQuestionStats();
   }, []);
 
   // 渲染知识点热力图
@@ -148,6 +176,14 @@ const InsightDashboard: React.FC = () => {
 
   // 渲染高频问题Top10图表
   const renderTopQuestionsChart = (chart: echarts.ECharts) => {
+    if (loading) return;
+
+    // 处理数据，确保只有10个数据点
+    const sortedQuestions = [...questionStats].sort((a, b) => b.count - a.count);
+    const top10Questions = sortedQuestions.slice(0, 10);
+    const questionNames = top10Questions.map(q => q.question);
+    const questionCounts = top10Questions.map(q => q.count);
+
     const option = {
       tooltip: {
         trigger: 'axis',
@@ -156,7 +192,8 @@ const InsightDashboard: React.FC = () => {
         },
         formatter: (params: any) => {
           const data = params[0];
-          return `${data.name}<br/>咨询次数: ${data.value}次<br/>分类: ${mockTopQuestions[data.dataIndex].category}`;
+          const question = top10Questions[data.dataIndex];
+          return `${question.question}<br/>咨询次数: ${question.count}次<br/>零命中率: ${question.zeroHitRate}%`;
         }
       },
       grid: {
@@ -167,7 +204,7 @@ const InsightDashboard: React.FC = () => {
       },
       xAxis: {
         type: 'category',
-        data: mockTopQuestions.map(item => item.question),
+        data: questionNames,
         axisLabel: {
           interval: 0,
           rotate: 45,
@@ -184,7 +221,7 @@ const InsightDashboard: React.FC = () => {
         {
           name: '咨询次数',
           type: 'bar',
-          data: mockTopQuestions.map(item => item.count),
+          data: questionCounts,
           itemStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               { offset: 0, color: '#ffd700' },
@@ -222,15 +259,30 @@ const InsightDashboard: React.FC = () => {
       render: (text: string) => <Text strong>{text}</Text>
     },
     {
-      title: '提问用户',
-      dataIndex: 'user',
-      key: 'user'
+      title: '咨询次数',
+      dataIndex: 'count',
+      key: 'count',
+      sorter: (a: any, b: any) => a.count - b.count
     },
     {
-      title: '提问时间',
-      dataIndex: 'askedAt',
-      key: 'askedAt',
-      sorter: (a: any, b: any) => new Date(a.askedAt).getTime() - new Date(b.askedAt).getTime()
+      title: '最后询问时间',
+      dataIndex: 'lastAskedAt',
+      key: 'lastAskedAt',
+      render: (text: string) => new Date(text).toLocaleString(),
+      sorter: (a: any, b: any) => new Date(a.lastAskedAt).getTime() - new Date(b.lastAskedAt).getTime()
+    },
+    {
+      title: '零命中次数',
+      dataIndex: 'zeroHitCount',
+      key: 'zeroHitCount',
+      sorter: (a: any, b: any) => a.zeroHitCount - b.zeroHitCount
+    },
+    {
+      title: '零命中率',
+      dataIndex: 'zeroHitRate',
+      key: 'zeroHitRate',
+      render: (text: number) => `${text}%`,
+      sorter: (a: any, b: any) => a.zeroHitRate - b.zeroHitRate
     },
     {
       title: '操作',
@@ -268,10 +320,49 @@ const InsightDashboard: React.FC = () => {
       </Card>
 
       <Tabs defaultActiveKey="1" type="card" size="large">
+
+
+
+        {/* 零命中问题列表 */}
+        <TabPane
+          tab={<><FileSearchOutlined /> 高频Top 10与零命中问题列表</>}
+          key="1"
+        >
+          <Card
+            title={<Title level={3}>未匹配到知识库的问题</Title>}
+            extra={
+              <Button type="primary" icon={<DownloadOutlined />} onClick={() => handleExportData('零命中问题')}>
+                导出列表
+              </Button>
+            }
+            style={{ marginBottom: 20 }}
+          >
+            <Text type="secondary">
+              展示用户咨询但知识库中没有匹配答案的问题，帮助您完善知识库内容
+            </Text>
+          </Card>
+
+          <Card>
+            <Table
+              dataSource={questionStats.filter(q => q.zeroHitCount > 0)}
+              columns={zeroHitColumns}
+              pagination={{ pageSize: 10 }}
+              rowKey="question"
+              expandable={{
+                expandedRowRender: (record) => (
+                  <p style={{ margin: 0 }}>
+                    <Text strong>问题详情：</Text>{record.question}
+                  </p>
+                )
+              }}
+            />
+          </Card>
+        </TabPane>
+
         {/* 知识点热力图 */}
         <TabPane
           tab={<><FireOutlined /> 知识点热力图</>}
-          key="1"
+          key="2  "
         >
           <Card
             title={<Title level={3}>文档引用次数排名</Title>}
@@ -332,116 +423,6 @@ const InsightDashboard: React.FC = () => {
               ]}
               pagination={{ pageSize: 5 }}
               rowKey="name"
-            />
-          </Card>
-        </TabPane>
-
-        {/* 高频问题Top10 */}
-        <TabPane
-          tab={<><BarChartOutlined /> 高频问题Top10</>}
-          key="2"
-        >
-          <Card
-            title={<Title level={3}>用户咨询高频问题排名</Title>}
-            extra={
-              <Button icon={<DownloadOutlined />} onClick={() => handleExportData('高频问题')}>
-                导出图表
-              </Button>
-            }
-            style={{ marginBottom: 20 }}
-          >
-            <Text type="secondary">
-              展示用户咨询最多的前10个问题，帮助您了解用户最关心的话题
-            </Text>
-          </Card>
-
-          <Card style={{ marginBottom: 20 }}>
-            <div
-              ref={topQuestionsChartRef}
-              style={{ height: '500px', width: '100%' }}
-            />
-          </Card>
-
-          {/* 高频问题数据表格 */}
-          <Card title={<Title level={4}>详细数据</Title>}>
-            <Table
-              dataSource={mockTopQuestions}
-              columns={[
-                {
-                  title: '排名',
-                  dataIndex: 'rank',
-                  key: 'rank',
-                  width: 60
-                },
-                {
-                  title: '问题',
-                  dataIndex: 'question',
-                  key: 'question'
-                },
-                {
-                  title: '咨询次数',
-                  dataIndex: 'count',
-                  key: 'count',
-                  sorter: (a, b) => a.count - b.count
-                },
-                {
-                  title: '分类',
-                  dataIndex: 'category',
-                  key: 'category',
-                  render: (category: string) => (
-                    <Tag color={
-                      category === '入驻流程' ? 'blue' :
-                        category === '费用说明' ? 'green' :
-                          category === '账户管理' ? 'orange' :
-                            category === '订单管理' ? 'purple' :
-                              category === '退款说明' ? 'red' :
-                                category === '客服支持' ? 'cyan' :
-                                  category === '支付方式' ? 'magenta' :
-                                    category === '交易管理' ? 'gold' : 'gray'
-                    }>
-                      {category}
-                    </Tag>
-                  )
-                }
-              ]}
-              pagination={{ pageSize: 5 }}
-              rowKey="rank"
-            />
-          </Card>
-        </TabPane>
-
-        {/* 零命中问题列表 */}
-        <TabPane
-          tab={<><FileSearchOutlined /> 零命中问题列表</>}
-          key="3"
-        >
-          <Card
-            title={<Title level={3}>未匹配到知识库的问题</Title>}
-            extra={
-              <Button type="primary" icon={<DownloadOutlined />} onClick={() => handleExportData('零命中问题')}>
-                导出列表
-              </Button>
-            }
-            style={{ marginBottom: 20 }}
-          >
-            <Text type="secondary">
-              展示用户咨询但知识库中没有匹配答案的问题，帮助您完善知识库内容
-            </Text>
-          </Card>
-
-          <Card>
-            <Table
-              dataSource={mockZeroHitQuestions}
-              columns={zeroHitColumns}
-              pagination={{ pageSize: 10 }}
-              rowKey="id"
-              expandable={{
-                expandedRowRender: (record) => (
-                  <p style={{ margin: 0 }}>
-                    <Text strong>问题详情：</Text>{record.question}
-                  </p>
-                )
-              }}
             />
           </Card>
         </TabPane>
