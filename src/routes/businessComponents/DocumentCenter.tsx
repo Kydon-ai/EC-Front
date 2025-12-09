@@ -1,6 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs, Upload, Button, message, Card, Form, Input, Select, Space, Typography, Table, Input as AntInput, DatePicker, Tag, Modal, Popconfirm } from 'antd';
-import { UploadOutlined, FileTextOutlined, SearchOutlined, EyeOutlined, EditOutlined, DeleteOutlined, InboxOutlined } from '@ant-design/icons';
+import {
+	Tabs,
+	Upload,
+	Button,
+	message,
+	Card,
+	Form,
+	Input,
+	Select,
+	Space,
+	Typography,
+	Table,
+	Input as AntInput,
+	DatePicker,
+	Tag,
+	Modal,
+	Popconfirm,
+} from 'antd';
+import {
+	UploadOutlined,
+	FileTextOutlined,
+	SearchOutlined,
+	EyeOutlined,
+	EditOutlined,
+	DeleteOutlined,
+	InboxOutlined,
+} from '@ant-design/icons';
 import request from '../../utils/https/request';
 
 const { Dragger } = Upload;
@@ -8,8 +33,6 @@ const { Title, Text } = Typography;
 const { Search } = AntInput;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-
-
 
 // 文档分类选项
 const documentCategoryOptions = [
@@ -96,7 +119,9 @@ const DocumentCenter: React.FC = () => {
 	const [documents, setDocuments] = useState<any[]>([]);
 	const [filteredDocuments, setFilteredDocuments] = useState<any[]>([]);
 	const [searchText, setSearchText] = useState('');
-	const [dateRangeFilter, setDateRangeFilter] = useState<[Date | null, Date | null]>([null, null]);
+	const [dateRangeFilter, setDateRangeFilter] = useState<
+		[Date | null, Date | null]
+	>([null, null]);
 	const [viewModalVisible, setViewModalVisible] = useState(false);
 	const [selectedDocument, setSelectedDocument] = useState<any>(null);
 	const [loading, setLoading] = useState(false);
@@ -109,7 +134,9 @@ const DocumentCenter: React.FC = () => {
 	const fetchDocuments = async () => {
 		try {
 			setLoading(true);
-			const response = await request.get('/api/knowledge-bases/28dee884d4bf11f09ece5e1b7fcabefc/documents');
+			const response = await request.get(
+				'/api/knowledge-bases/28dee884d4bf11f09ece5e1b7fcabefc/documents'
+			);
 			if (response.status === 'success' && response.documents) {
 				setDocuments(response.documents);
 				setFilteredDocuments(response.documents);
@@ -126,7 +153,16 @@ const DocumentCenter: React.FC = () => {
 	const beforeUpload = (file: any) => {
 		// 检查文件类型
 		const fileExtension = file.name.split('.').pop()?.toLowerCase();
-		const isAllowedType = ['pdf', 'doc', 'docx', 'txt', 'ppt', 'pptx', 'xls', 'xlsx'].includes(fileExtension || '');
+		const isAllowedType = [
+			'pdf',
+			'doc',
+			'docx',
+			'txt',
+			'ppt',
+			'pptx',
+			'xls',
+			'xlsx',
+		].includes(fileExtension || '');
 		if (!isAllowedType) {
 			message.error('只允许上传PDF、Word、TXT、PPT和Excel文件！');
 			return Upload.LIST_IGNORE;
@@ -163,7 +199,7 @@ const DocumentCenter: React.FC = () => {
 				const formData = new FormData();
 				// 显式指定文件名，确保服务器能正确识别文件
 				formData.append('file', file.originFileObj || file, file.name);
-				console.log("查看上传文件名字：", file.name)
+				console.log('查看上传文件名字：', file.name);
 				formData.append('title', file.name);
 				formData.append('metadata', '{}');
 				formData.append('author', values.author || '匿名');
@@ -210,7 +246,10 @@ const DocumentCenter: React.FC = () => {
 	};
 
 	// 筛选功能
-	const filterDocuments = (search: string, dateRange: [Date | null, Date | null]) => {
+	const filterDocuments = (
+		search: string,
+		dateRange: [Date | null, Date | null]
+	) => {
 		let filtered = [...documents];
 
 		// 搜索过滤
@@ -224,7 +263,9 @@ const DocumentCenter: React.FC = () => {
 		if (dateRange[0] && dateRange[1]) {
 			filtered = filtered.filter(doc => {
 				const docDate = new Date(doc.createdAt);
-				return docDate >= (dateRange[0] as Date) && docDate <= (dateRange[1] as Date);
+				return (
+					docDate >= (dateRange[0] as Date) && docDate <= (dateRange[1] as Date)
+				);
 			});
 		}
 
@@ -266,7 +307,7 @@ const DocumentCenter: React.FC = () => {
 			excel: 'Excel表格',
 			docx: 'Word文档',
 			xlsx: 'Excel表格',
-			pptx: 'PPT文档'
+			pptx: 'PPT文档',
 		};
 		return fileTypeMap[fileType] || fileType;
 	};
@@ -293,7 +334,15 @@ const DocumentCenter: React.FC = () => {
 			default:
 				color = 'default';
 		}
-		return <Tag color={color}>{status === 'active' ? '已发布' : status === 'draft' ? '草稿' : '已归档'}</Tag>;
+		return (
+			<Tag color={color}>
+				{status === 'active'
+					? '已发布'
+					: status === 'draft'
+						? '草稿'
+						: '已归档'}
+			</Tag>
+		);
 	};
 
 	// 表格列配置
@@ -313,9 +362,7 @@ const DocumentCenter: React.FC = () => {
 			title: '创建时间',
 			dataIndex: 'createdAt',
 			key: 'createdAt',
-			render: (text: string) => (
-				<Text>{new Date(text).toLocaleString()}</Text>
-			),
+			render: (text: string) => <Text>{new Date(text).toLocaleString()}</Text>,
 		},
 		{
 			title: '标签',
@@ -334,10 +381,18 @@ const DocumentCenter: React.FC = () => {
 			key: 'action',
 			render: (_: any, record: any) => (
 				<Space size="middle">
-					<Button type="link" icon={<EyeOutlined />} onClick={() => handleViewDocument(record)}>
+					<Button
+						type="link"
+						icon={<EyeOutlined />}
+						onClick={() => handleViewDocument(record)}
+					>
 						查看
 					</Button>
-					<Button type="link" icon={<EditOutlined />} onClick={() => handleEditDocument(record)}>
+					<Button
+						type="link"
+						icon={<EditOutlined />}
+						onClick={() => handleEditDocument(record)}
+					>
 						编辑
 					</Button>
 					<Popconfirm
@@ -427,15 +482,11 @@ const DocumentCenter: React.FC = () => {
 							key: 'upload',
 							label: '文档上传',
 							children: (
-								<Form
-									form={form}
-									layout="vertical"
-									onFinish={onFinish}
-								>
+								<Form form={form} layout="vertical" onFinish={onFinish}>
 									<Form.Item
 										name="documentTitle"
 										label="文档标题"
-									// 非必填
+										// 非必填
 									>
 										<Input placeholder="请输入文档标题" />
 									</Form.Item>
@@ -444,7 +495,7 @@ const DocumentCenter: React.FC = () => {
 										name="author"
 										label="文件作者"
 										initialValue="匿名"
-									// 非必填
+										// 非必填
 									>
 										<Input placeholder="请输入文件作者" />
 									</Form.Item>
@@ -453,7 +504,7 @@ const DocumentCenter: React.FC = () => {
 										name="documentCategory"
 										label="文档分类"
 										initialValue="knowledge"
-									// 非必填，默认选中第一个分类
+										// 非必填，默认选中第一个分类
 									>
 										<Select placeholder="请选择文档分类">
 											{documentCategoryOptions.map(option => (
@@ -464,11 +515,11 @@ const DocumentCenter: React.FC = () => {
 										</Select>
 									</Form.Item>
 
-									<Form.Item
-										name="documentDescription"
-										label="文档描述"
-									>
-										<Input.TextArea rows={4} placeholder="请输入文档描述（可选）" />
+									<Form.Item name="documentDescription" label="文档描述">
+										<Input.TextArea
+											rows={4}
+											placeholder="请输入文档描述（可选）"
+										/>
 									</Form.Item>
 
 									<Form.Item
@@ -479,7 +530,9 @@ const DocumentCenter: React.FC = () => {
 											<p className="ant-upload-drag-icon">
 												<InboxOutlined />
 											</p>
-											<p className="ant-upload-text">点击或拖拽文件到此处上传</p>
+											<p className="ant-upload-text">
+												点击或拖拽文件到此处上传
+											</p>
 											<p className="ant-upload-hint">
 												支持单个或多个文件上传。只允许上传PDF、Word、TXT、PPT和Excel文件，单个文件大小不超过10MB。
 											</p>
@@ -488,7 +541,12 @@ const DocumentCenter: React.FC = () => {
 
 									<Form.Item>
 										<Space>
-											<Button type="primary" htmlType="submit" icon={<UploadOutlined />} loading={uploading}>
+											<Button
+												type="primary"
+												htmlType="submit"
+												icon={<UploadOutlined />}
+												loading={uploading}
+											>
 												上传文档
 											</Button>
 											<Button htmlType="reset" onClick={() => setFileList([])}>
@@ -506,7 +564,11 @@ const DocumentCenter: React.FC = () => {
 								<>
 									{/* 搜索和筛选区域 */}
 									<div style={{ marginBottom: '20px' }}>
-										<Space direction="vertical" size="middle" style={{ width: '100%' }}>
+										<Space
+											direction="vertical"
+											size="middle"
+											style={{ width: '100%' }}
+										>
 											<Space style={{ width: '100%' }}>
 												<Search
 													placeholder="搜索文档标题"
@@ -514,13 +576,16 @@ const DocumentCenter: React.FC = () => {
 													enterButton={<SearchOutlined />}
 													size="large"
 													onSearch={handleSearch}
-													onChange={(e) => handleSearch(e.target.value)}
+													onChange={e => handleSearch(e.target.value)}
 													style={{ width: '300px' }}
 												/>
 												<RangePicker
 													placeholder={['开始日期', '结束日期']}
-													onChange={(dates) => {
-														const newRange = dates as [Date | null, Date | null];
+													onChange={dates => {
+														const newRange = dates as [
+															Date | null,
+															Date | null,
+														];
 														setDateRangeFilter(newRange);
 														filterDocuments(searchText, newRange);
 													}}
@@ -538,7 +603,8 @@ const DocumentCenter: React.FC = () => {
 										pagination={{
 											pageSize: 5,
 											showSizeChanger: true,
-											showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
+											showTotal: (total, range) =>
+												`第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
 										}}
 										loading={loading}
 									/>

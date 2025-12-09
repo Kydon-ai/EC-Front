@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { Upload, Button, message, Card, Form, Input, Select, Space, Typography } from 'antd';
+import {
+	Upload,
+	Button,
+	message,
+	Card,
+	Form,
+	Input,
+	Select,
+	Space,
+	Typography,
+} from 'antd';
 import { UploadOutlined, FileTextOutlined } from '@ant-design/icons';
 import { InboxOutlined } from '@ant-design/icons';
 
@@ -33,7 +43,16 @@ const DocumentUpload: React.FC = () => {
 	const beforeUpload = (file: any) => {
 		// 检查文件类型
 		const fileExtension = file.name.split('.').pop()?.toLowerCase();
-		const isAllowedType = ['pdf', 'doc', 'docx', 'txt', 'ppt', 'pptx', 'xls', 'xlsx'].includes(fileExtension || '');
+		const isAllowedType = [
+			'pdf',
+			'doc',
+			'docx',
+			'txt',
+			'ppt',
+			'pptx',
+			'xls',
+			'xlsx',
+		].includes(fileExtension || '');
 		if (!isAllowedType) {
 			message.error('只允许上传PDF、Word、TXT、PPT和Excel文件！');
 			return Upload.LIST_IGNORE;
@@ -83,11 +102,7 @@ const DocumentUpload: React.FC = () => {
 	return (
 		<div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
 			<Card title={<Title level={2}>文档上传</Title>}>
-				<Form
-					form={form}
-					layout="vertical"
-					onFinish={onFinish}
-				>
+				<Form form={form} layout="vertical" onFinish={onFinish}>
 					<Form.Item
 						name="documentTitle"
 						label="文档标题"
@@ -124,10 +139,7 @@ const DocumentUpload: React.FC = () => {
 						</Select>
 					</Form.Item>
 
-					<Form.Item
-						name="documentDescription"
-						label="文档描述"
-					>
+					<Form.Item name="documentDescription" label="文档描述">
 						<Input.TextArea rows={4} placeholder="请输入文档描述（可选）" />
 					</Form.Item>
 
@@ -148,7 +160,11 @@ const DocumentUpload: React.FC = () => {
 
 					<Form.Item>
 						<Space>
-							<Button type="primary" htmlType="submit" icon={<UploadOutlined />}>
+							<Button
+								type="primary"
+								htmlType="submit"
+								icon={<UploadOutlined />}
+							>
 								上传文档
 							</Button>
 							<Button htmlType="reset" onClick={() => setFileList([])}>

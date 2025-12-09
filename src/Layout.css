@@ -13,10 +13,10 @@
 
 /* Tabs组件表头居中样式 */
 .centered-tabs .arco-tabs-header {
-  margin: auto;
+	margin: auto;
 }
 
 /* 全局Icon配置 */
 .arco-icon {
-  font-size: 32px;
+	font-size: 32px;
 }

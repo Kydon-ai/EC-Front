@@ -29,7 +29,16 @@ const FooterCopyright = () => {
 
 	// 格式化时间差
 	const formatTime = (diff: number) => {
-		if (diff === 0) return { years: 0, months: 0, days: 0, hours: 0, minutes: 0, seconds: 0, ms: 0 };
+		if (diff === 0)
+			return {
+				years: 0,
+				months: 0,
+				days: 0,
+				hours: 0,
+				minutes: 0,
+				seconds: 0,
+				ms: 0,
+			};
 
 		// 创建日期对象用于精确计算
 		const endDate = new Date(targetDate.getTime() + diff);
@@ -48,7 +57,11 @@ const FooterCopyright = () => {
 
 		// 处理负天数情况
 		if (days < 0) {
-			const lastDayOfMonth = new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0).getDate();
+			const lastDayOfMonth = new Date(
+				endDate.getFullYear(),
+				endDate.getMonth() + 1,
+				0
+			).getDate();
 			days += lastDayOfMonth;
 			months -= 1;
 		}
@@ -69,38 +82,53 @@ const FooterCopyright = () => {
 	};
 
 	// 解构格式化后的时间数据
-	const { years, months, days, hours, minutes, seconds, ms } = formatTime(timeDiff);
+	const { years, months, days, hours, minutes, seconds, ms } =
+		formatTime(timeDiff);
 
 	// 动态构建显示字符串
 	const timeComponents = [
-		years > 0 ? `${String(years).padStart(2, "0")}年` : '',
-		months > 0 ? `${String(months).padStart(2, "0")}个月` : '',
-		days > 0 ? `${String(days).padStart(2, "0")}天` : '',
-		hours > 0 ? `${String(hours).padStart(2, "0")}小时` : '',
-		minutes > 0 ? `${String(minutes).padStart(2, "0")}分钟` : '',
-		seconds > 0 ? `${String(seconds).padStart(2, "0")}秒` : '',
-		`${String(ms).padStart(3, "0")}毫秒`
-	].filter(Boolean).join(' ');
+		years > 0 ? `${String(years).padStart(2, '0')}年` : '',
+		months > 0 ? `${String(months).padStart(2, '0')}个月` : '',
+		days > 0 ? `${String(days).padStart(2, '0')}天` : '',
+		hours > 0 ? `${String(hours).padStart(2, '0')}小时` : '',
+		minutes > 0 ? `${String(minutes).padStart(2, '0')}分钟` : '',
+		seconds > 0 ? `${String(seconds).padStart(2, '0')}秒` : '',
+		`${String(ms).padStart(3, '0')}毫秒`,
+	]
+		.filter(Boolean)
+		.join(' ');
 
 	return (
 		<div className="copyright">
-			<p>© 2024-2025 www.qidong.tech &nbsp;
+			<p>
+				© 2024-2025 www.qidong.tech &nbsp;
 				{/* 20240821 */}
 				<span>本站已运行：{timeComponents}</span>
 			</p>
 
-			<p className='filing'>
+			<p className="filing">
 				{/* <strong>ICP备案信息：</strong> */}
-				<a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">
+				<a
+					href="https://beian.miit.gov.cn"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
 					湘ICP备2024098725号
-				</a> &nbsp;&nbsp;
+				</a>{' '}
+				&nbsp;&nbsp;
 				<Image
-					src={"/img/ba.png"}
+					src={'/img/ba.png'}
 					width={15} // 按实际尺寸调整
 					preview={false}
 					alt="公安备案标识"
 				/>
-				<a href="https://beian.mps.gov.cn/#/query/webSearch?code=44030002006655" rel="noreferrer" target="_blank">粤公网安备44030002006655号</a>
+				<a
+					href="https://beian.mps.gov.cn/#/query/webSearch?code=44030002006655"
+					rel="noreferrer"
+					target="_blank"
+				>
+					粤公网安备44030002006655号
+				</a>
 			</p>
 		</div>
 	);

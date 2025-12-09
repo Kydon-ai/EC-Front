@@ -1,29 +1,29 @@
 // 添加路由
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import AuthGuard from './routes/AuthGuard';
 
-import { FC, StrictMode, useRef } from "react";
-import { createRoot } from "react-dom/client";
+import { FC, StrictMode, useRef } from 'react';
+import { createRoot } from 'react-dom/client';
 // UI及对应ICON
 import { FloatButton, Button } from 'antd';
 
 // 引入自定义样式库
-import "./Layout.css"
+import './Layout.css';
 
 // 自定义组件
-import FooterCopyright from "./routes/FooterCopyRight.tsx";
-import TopMenu from "./routes/topMenu.tsx";
-import ShowDemo from "./routes/demo.tsx";
-import Home from "./routes/Home.tsx";
-import TailwindDemo from "./routes/TailwindDemo.tsx";
-import ChatApp from "./routes/businessComponents/chat.tsx";
-import DocumentCenter from "./routes/businessComponents/DocumentCenter.tsx";
-import InsightDashboard from "./routes/businessComponents/InsightDashboard.tsx";
-import AboutAuthor from "./routes/normal/AboutAuthor.tsx"
-import AboutProject from "./routes/normal/AboutProject.tsx"
-import ConcatMe from "./routes/normal/ConcatMe.tsx"
-import FriendChain from "./routes/normal/FriendChain.tsx";
-import { WindowSizeProvider } from "./utils/windowContext/win.tsx";
+import FooterCopyright from './routes/FooterCopyRight.tsx';
+import TopMenu from './routes/topMenu.tsx';
+import ShowDemo from './routes/demo.tsx';
+import Home from './routes/Home.tsx';
+import TailwindDemo from './routes/TailwindDemo.tsx';
+import ChatApp from './routes/businessComponents/chat.tsx';
+import DocumentCenter from './routes/businessComponents/DocumentCenter.tsx';
+import InsightDashboard from './routes/businessComponents/InsightDashboard.tsx';
+import AboutAuthor from './routes/normal/AboutAuthor.tsx';
+import AboutProject from './routes/normal/AboutProject.tsx';
+import ConcatMe from './routes/normal/ConcatMe.tsx';
+import FriendChain from './routes/normal/FriendChain.tsx';
+import { WindowSizeProvider } from './utils/windowContext/win.tsx';
 
 // 主页导航栏数据
 const items = [
@@ -53,11 +53,10 @@ const items = [
 	// },
 ];
 
-
 // 创建布局组件以使用useLocation钩子
 const AppLayout = () => {
 	const location = useLocation();
-	const specialRouter = ["/chat", "/document-management", "/insight-dashboard"]
+	const specialRouter = ['/chat', '/document-management', '/insight-dashboard'];
 	return (
 		<WindowSizeProvider>
 			<div className="layout">
@@ -67,25 +66,56 @@ const AppLayout = () => {
 					</header>
 				)}
 				<main className="content">
-					<div style={{ minHeight: "100vh", backgroundColor: "darkgray" }}>
+					<div style={{ minHeight: '100vh', backgroundColor: 'darkgray' }}>
 						{/* 对chat路由应用100%宽度，其他路由保持80vw最大宽度 */}
-						<div style={{
-							maxWidth: specialRouter.includes(location.pathname) ? '100vw' : '80vw',
-							margin: 'auto',
-						}}>
+						<div
+							style={{
+								maxWidth: specialRouter.includes(location.pathname)
+									? '100vw'
+									: '80vw',
+								margin: 'auto',
+							}}
+						>
 							<Routes>
 								<Route path="/" element={<Home />} />
 								<Route path="/home" element={<Home />} />
 								<Route path="/demo" element={<ShowDemo />} />
 								<Route path="/tailwind-demo" element={<TailwindDemo />} />
 								<Route path="/chat" element={<ChatApp />} />
-								<Route path="/document-management" element={<DocumentCenter />} />
-								<Route path="/insight-dashboard" element={<InsightDashboard />} />
+								<Route
+									path="/document-management"
+									element={<DocumentCenter />}
+								/>
+								<Route
+									path="/insight-dashboard"
+									element={<InsightDashboard />}
+								/>
 
-								<Route path="/about-project" element={<AuthGuard><AboutProject /></AuthGuard>} />
+								<Route
+									path="/about-project"
+									element={
+										<AuthGuard>
+											<AboutProject />
+										</AuthGuard>
+									}
+								/>
 								{/* <Route path="/about-author" element={<AboutAuthor />} /> */}
-								<Route path="/concat-me" element={<AuthGuard><ConcatMe /></AuthGuard>} />
-								<Route path="/friend-chain" element={<AuthGuard><FriendChain /></AuthGuard>} />
+								<Route
+									path="/concat-me"
+									element={
+										<AuthGuard>
+											<ConcatMe />
+										</AuthGuard>
+									}
+								/>
+								<Route
+									path="/friend-chain"
+									element={
+										<AuthGuard>
+											<FriendChain />
+										</AuthGuard>
+									}
+								/>
 							</Routes>
 						</div>
 						<FloatButton.BackTop />
@@ -93,7 +123,7 @@ const AppLayout = () => {
 				</main>
 				{/* 当路由不是/chat时渲染页脚 */}
 				{!specialRouter.includes(location.pathname) && (
-					<footer className="footer" style={{ minHeight: "10vh" }}>
+					<footer className="footer" style={{ minHeight: '10vh' }}>
 						<FooterCopyright></FooterCopyright>
 					</footer>
 				)}
@@ -102,9 +132,9 @@ const AppLayout = () => {
 	);
 };
 
-createRoot(document.getElementById("root")!).render(
+createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<BrowserRouter >
+		<BrowserRouter>
 			<AppLayout />
 		</BrowserRouter>
 	</StrictMode>

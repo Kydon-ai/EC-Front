@@ -5,7 +5,9 @@ const TailwindDemo: React.FC = () => {
 		<div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
 			<div className="max-w-7xl mx-auto">
 				<header className="text-center mb-16">
-					<h1 className="text-4xl font-extrabold text-gray-900 mb-4">Tailwind CSS 示例页面</h1>
+					<h1 className="text-4xl font-extrabold text-gray-900 mb-4">
+						Tailwind CSS 示例页面
+					</h1>
 					<p className="text-xl text-gray-600 max-w-3xl mx-auto">
 						这个页面展示了Tailwind CSS的各种功能，包括布局、颜色、间距、排版等。
 					</p>
@@ -50,17 +52,17 @@ const TailwindDemo: React.FC = () => {
 							{
 								title: '响应式设计',
 								desc: 'Tailwind CSS提供了强大的响应式工具，让你的网站在任何设备上都能完美展示。',
-								icon: '📱'
+								icon: '📱',
 							},
 							{
 								title: '可定制性',
 								desc: '通过配置文件可以轻松定制颜色、字体、间距等，满足项目的独特需求。',
-								icon: '🎨'
+								icon: '🎨',
 							},
 							{
 								title: '原子化CSS',
 								desc: '基于实用优先的原则，提供了丰富的原子类，让你能够快速构建UI。',
-								icon: '⚡'
+								icon: '⚡',
 							},
 						].map((card, index) => (
 							<div
@@ -69,14 +71,26 @@ const TailwindDemo: React.FC = () => {
 							>
 								<div className="p-6">
 									<div className="text-4xl mb-4">{card.icon}</div>
-									<h3 className="text-xl font-bold text-gray-800 mb-2">{card.title}</h3>
+									<h3 className="text-xl font-bold text-gray-800 mb-2">
+										{card.title}
+									</h3>
 									<p className="text-gray-600">{card.desc}</p>
 								</div>
 								<div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
 									<button className="text-blue-600 hover:text-blue-800 font-medium flex items-center">
 										了解更多
-										<svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+										<svg
+											className="w-4 h-4 ml-1"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+												d="M14 5l7 7m0 0l-7 7m7-7H3"
+											/>
 										</svg>
 									</button>
 								</div>
@@ -94,7 +108,10 @@ const TailwindDemo: React.FC = () => {
 					<div className="bg-white p-8 rounded-xl shadow-md max-w-3xl mx-auto">
 						<form>
 							<div className="mb-6">
-								<label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+								<label
+									htmlFor="name"
+									className="block text-sm font-medium text-gray-700 mb-1"
+								>
 									姓名
 								</label>
 								<input
@@ -106,7 +123,10 @@ const TailwindDemo: React.FC = () => {
 							</div>
 
 							<div className="mb-6">
-								<label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+								<label
+									htmlFor="email"
+									className="block text-sm font-medium text-gray-700 mb-1"
+								>
 									电子邮箱
 								</label>
 								<input
@@ -118,7 +138,10 @@ const TailwindDemo: React.FC = () => {
 							</div>
 
 							<div className="mb-6">
-								<label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+								<label
+									htmlFor="message"
+									className="block text-sm font-medium text-gray-700 mb-1"
+								>
 									留言
 								</label>
 								<textarea
@@ -135,7 +158,10 @@ const TailwindDemo: React.FC = () => {
 									id="terms"
 									className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
 								/>
-								<label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
+								<label
+									htmlFor="terms"
+									className="ml-2 block text-sm text-gray-700"
+								>
 									我同意所有条款和条件
 								</label>
 							</div>
@@ -194,14 +220,18 @@ const TailwindDemo: React.FC = () => {
 						在小屏幕上每行显示2个，中等屏幕上每行显示3个，大屏幕上每行显示4个：
 					</p>
 					<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-						{Array(12).fill(0).map((_, index) => (
-							<div
-								key={index}
-								className="aspect-w-1 aspect-h-1 bg-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition duration-300 flex items-center justify-center"
-							>
-								<span className="text-gray-500 font-medium">项目 {index + 1}</span>
-							</div>
-						))}
+						{Array(12)
+							.fill(0)
+							.map((_, index) => (
+								<div
+									key={index}
+									className="aspect-w-1 aspect-h-1 bg-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition duration-300 flex items-center justify-center"
+								>
+									<span className="text-gray-500 font-medium">
+										项目 {index + 1}
+									</span>
+								</div>
+							))}
 					</div>
 				</section>
 
@@ -214,7 +244,9 @@ const TailwindDemo: React.FC = () => {
 					<div className="space-y-4">
 						{/* 自定义按钮样式组 */}
 						<div>
-							<h3 className="text-lg font-medium text-gray-700 mb-3">按钮样式组</h3>
+							<h3 className="text-lg font-medium text-gray-700 mb-3">
+								按钮样式组
+							</h3>
 							<div className="flex flex-wrap gap-3">
 								<button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
 									主按钮
@@ -236,15 +268,21 @@ const TailwindDemo: React.FC = () => {
 
 						{/* 卡片样式组 */}
 						<div>
-							<h3 className="text-lg font-medium text-gray-700 mb-3">卡片样式组</h3>
+							<h3 className="text-lg font-medium text-gray-700 mb-3">
+								卡片样式组
+							</h3>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
 									<h4 className="font-bold text-gray-800 mb-2">简单卡片</h4>
-									<p className="text-gray-600">包含基本的卡片样式，有边框和内边距。</p>
+									<p className="text-gray-600">
+										包含基本的卡片样式，有边框和内边距。
+									</p>
 								</div>
 								<div className="bg-white rounded-lg p-6 shadow hover:shadow-md transition-shadow">
 									<h4 className="font-bold text-gray-800 mb-2">阴影卡片</h4>
-									<p className="text-gray-600">包含阴影效果，使卡片更有层次感。</p>
+									<p className="text-gray-600">
+										包含阴影效果，使卡片更有层次感。
+									</p>
 								</div>
 							</div>
 						</div>
@@ -252,7 +290,10 @@ const TailwindDemo: React.FC = () => {
 				</section>
 
 				<footer className="text-center mt-20 text-gray-500 text-sm">
-					<p>© {new Date().getFullYear()} Tailwind CSS 示例页面 | 使用 React 和 Tailwind CSS 构建</p>
+					<p>
+						© {new Date().getFullYear()} Tailwind CSS 示例页面 | 使用 React 和
+						Tailwind CSS 构建
+					</p>
 				</footer>
 			</div>
 		</div>

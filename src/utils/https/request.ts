@@ -1,9 +1,11 @@
 // request.ts
-type RequestInterceptor = (config: RequestInit & { url: string }) => Promise<RequestInit & { url: string }> | (RequestInit & { url: string });
+type RequestInterceptor = (
+	config: RequestInit & { url: string }
+) => Promise<RequestInit & { url: string }> | (RequestInit & { url: string });
 type ResponseInterceptor = (response: Response) => Promise<Response> | Response;
 
 function getAuthToken() {
-	return "test_token"
+	return 'test_token';
 }
 class Request {
 	private baseURL: string;
@@ -11,7 +13,7 @@ class Request {
 	private requestInterceptors: RequestInterceptor[] = [];
 	private responseInterceptors: ResponseInterceptor[] = [];
 
-	constructor(baseURL = "", defaultHeaders: HeadersInit = {}) {
+	constructor(baseURL = '', defaultHeaders: HeadersInit = {}) {
 		this.baseURL = baseURL;
 		this.defaultHeaders = defaultHeaders;
 	}
@@ -33,14 +35,14 @@ class Request {
 		// 创建请求配置
 		let config: RequestInit & { url: string } = {
 			url: this.baseURL + url,
-			method: options.method || "GET",
+			method: options.method || 'GET',
 			body: options.body,
 		};
 
 		// 处理headers
 		const headers: Record<string, string> = {
 			// 明确指定使用UTF-8编码，避免中文文件名乱码
-			'accept-charset': 'utf-8'
+			'accept-charset': 'utf-8',
 		};
 
 		// 复制默认headers
@@ -58,13 +60,13 @@ class Request {
 		}
 
 		// 添加Authorization头（如果还没有的话）
-		if (!headers["authorization"]) {
-			headers["authorization"] = `Bearer ${getAuthToken()}`;
+		if (!headers['authorization']) {
+			headers['authorization'] = `Bearer ${getAuthToken()}`;
 		}
 
 		// 只有当不是FormData时才添加Content-Type为application/json
-		if (!isFormData && !headers["content-type"]) {
-			headers["content-type"] = "application/json";
+		if (!isFormData && !headers['content-type']) {
+			headers['content-type'] = 'application/json';
 		}
 
 		// 将headers添加到配置中
@@ -87,31 +89,41 @@ class Request {
 	}
 
 	get(url: string, headers?: HeadersInit) {
-		return this._fetch(url, { method: "GET", headers });
+		return this._fetch(url, { method: 'GET', headers });
 	}
 
 	post(url: string, data?: any, headers?: HeadersInit) {
 		return this._fetch(url, {
-			method: "POST",
-			body: data instanceof FormData ? data : (data ? JSON.stringify(data) : undefined),
+			method: 'POST',
+			body:
+				data instanceof FormData
+					? data
+					: data
+						? JSON.stringify(data)
+						: undefined,
 			headers,
 		});
 	}
 
 	put(url: string, data?: any, headers?: HeadersInit) {
 		return this._fetch(url, {
-			method: "PUT",
-			body: data instanceof FormData ? data : (data ? JSON.stringify(data) : undefined),
+			method: 'PUT',
+			body:
+				data instanceof FormData
+					? data
+					: data
+						? JSON.stringify(data)
+						: undefined,
 			headers,
 		});
 	}
 
 	delete(url: string, headers?: HeadersInit) {
-		return this._fetch(url, { method: "DELETE", headers });
+		return this._fetch(url, { method: 'DELETE', headers });
 	}
 
 	options(url: string, headers?: HeadersInit) {
-		return this._fetch(url, { method: "OPTIONS", headers });
+		return this._fetch(url, { method: 'OPTIONS', headers });
 	}
 
 	/**
@@ -127,14 +139,14 @@ class Request {
 		// 创建请求配置
 		let config: RequestInit & { url: string } = {
 			url: this.baseURL + url,
-			method: options.method || "GET",
+			method: options.method || 'GET',
 			body: options.body,
 		};
 
 		// 处理headers
 		const headers: Record<string, string> = {
 			// 明确指定使用UTF-8编码，避免中文文件名乱码
-			'accept-charset': 'utf-8'
+			'accept-charset': 'utf-8',
 		};
 
 		// 复制默认headers
@@ -152,13 +164,13 @@ class Request {
 		}
 
 		// 添加Authorization头（如果还没有的话）
-		if (!headers["authorization"]) {
-			headers["authorization"] = `Bearer ${getAuthToken()}`;
+		if (!headers['authorization']) {
+			headers['authorization'] = `Bearer ${getAuthToken()}`;
 		}
 
 		// 只有当不是FormData时才添加Content-Type为application/json
-		if (!isFormData && !headers["content-type"]) {
-			headers["content-type"] = "application/json";
+		if (!isFormData && !headers['content-type']) {
+			headers['content-type'] = 'application/json';
 		}
 
 		// 将headers添加到配置中
@@ -185,21 +197,21 @@ class Request {
 const request = new Request(import.meta.env.VITE_API_BASE_URL);
 
 // 使用示例
-request.useRequest(async (config) => {
+request.useRequest(async config => {
 	// 只在没有Authorization头时添加
 	if (!config.headers) {
 		config.headers = {};
 	}
-	if (!config.headers["Authorization"] && !config.headers["authorization"]) {
-		config.headers["Authorization"] = `Bearer ${getAuthToken()}`;
+	if (!config.headers['Authorization'] && !config.headers['authorization']) {
+		config.headers['Authorization'] = `Bearer ${getAuthToken()}`;
 	}
 	return config;
 });
 
-request.useResponse(async (response) => {
+request.useResponse(async response => {
 	const status = response.status;
 	if (!response.ok) {
-		console.log("查看错误状态码：", status);
+		console.log('查看错误状态码：', status);
 
 		// 尝试解析错误响应，但兼容非JSON格式
 		let errorData = {};
@@ -211,16 +223,16 @@ request.useResponse(async (response) => {
 			} else {
 				// 如果不是JSON，获取文本内容
 				const text = await response.text();
-				errorData = { message: text || "请求失败" };
+				errorData = { message: text || '请求失败' };
 			}
 		} catch (error) {
 			// 如果解析失败，使用默认错误信息
-			errorData = { message: "请求失败" };
+			errorData = { message: '请求失败' };
 		}
 
-		throw new Error(errorData.message || "请求失败");
+		throw new Error(errorData.message || '请求失败');
 	}
-	console.log("查看正确状态码：", status)
+	console.log('查看正确状态码：', status);
 	return response;
 });
 

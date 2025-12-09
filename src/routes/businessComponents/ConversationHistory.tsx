@@ -29,18 +29,21 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 	onToggleSidebar,
 	isMobile,
 	isMobileSidebarOpen,
-	onCloseMobileSidebar
+	onCloseMobileSidebar,
 }) => {
 	const handleConversationClick = async (conversation: ConversationItem) => {
 		try {
 			const detail = await getConversationDetail(conversation.id);
 			if (detail) {
 				// 将message数组转换为chatHistory格式
-				const messages: ChatMessage[] = detail.message.map((msg) => ({
+				const messages: ChatMessage[] = detail.message.map(msg => ({
 					id: msg.id,
 					content: msg.content,
 					role: msg.role === 'assistant' ? 'assistant' : 'user',
-					timestamp: new Date(detail.update_time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+					timestamp: new Date(detail.update_time).toLocaleTimeString('zh-CN', {
+						hour: '2-digit',
+						minute: '2-digit',
+					}),
 				}));
 				onSelectConversation(conversation.id, messages);
 
@@ -55,7 +58,9 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 	};
 
 	return (
-		<div className={`${sidebarCollapsed ? 'w-[60px]' : 'w-72'} border-r border-gray-200 flex flex-col bg-white transition-all duration-300 fixed z-40 h-full shadow-lg transform ${isMobile ? (isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full') : 'relative translate-x-0'}`}>
+		<div
+			className={`${sidebarCollapsed ? 'w-[60px]' : 'w-72'} border-r border-gray-200 flex flex-col bg-white transition-all duration-300 fixed z-40 h-full shadow-lg transform ${isMobile ? (isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full') : 'relative translate-x-0'}`}
+		>
 			{/* 对话历史标题栏 */}
 			<div className="p-4 border-b border-gray-200">
 				<div className="text-lg font-bold text-gray-800 flex items-center justify-between">
@@ -95,27 +100,45 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 
 			{/* 对话历史列表 */}
 			<div className="flex-1 overflow-y-auto p-2">
-				{!sidebarCollapsed && <div className="text-sm font-semibold text-gray-500 mb-2">对话历史列表</div>}
+				{!sidebarCollapsed && (
+					<div className="text-sm font-semibold text-gray-500 mb-2">
+						对话历史列表
+					</div>
+				)}
 				{loadingConversations ? (
 					<div className="p-8 text-center text-gray-500 flex flex-col items-center">
 						<div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-2"></div>
 						<div>加载对话历史...</div>
 					</div>
 				) : conversationList.length > 0 ? (
-					conversationList.map((conversation) => (
+					conversationList.map(conversation => (
 						<div
 							key={conversation.id}
 							className={`p-3 rounded-lg cursor-pointer transition-all duration-200 mb-2 relative ${selectedConversationId === conversation.id ? 'bg-blue-50 border-l-4 border-blue-500 shadow-sm' : 'hover:bg-gray-50'}`}
 							onClick={() => handleConversationClick(conversation)}
 						>
-							{!sidebarCollapsed && <div className="text-sm font-medium text-gray-800 truncate">{conversation.name}</div>}
-							{!sidebarCollapsed && <div className="text-xs text-gray-500 mt-1">{new Date(conversation.create_time).toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>}
+							{!sidebarCollapsed && (
+								<div className="text-sm font-medium text-gray-800 truncate">
+									{conversation.name}
+								</div>
+							)}
+							{!sidebarCollapsed && (
+								<div className="text-xs text-gray-500 mt-1">
+									{new Date(conversation.create_time).toLocaleString('zh-CN', {
+										year: 'numeric',
+										month: '2-digit',
+										day: '2-digit',
+										hour: '2-digit',
+										minute: '2-digit',
+									})}
+								</div>
+							)}
 
 							{/* 删除按钮 - 仅在侧边栏展开且鼠标悬停时显示 */}
 							{!sidebarCollapsed && (
 								<button
 									className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-500 rounded hover:bg-gray-100 transition-colors opacity-0 hover:opacity-100"
-									onClick={(e) => {
+									onClick={e => {
 										e.stopPropagation(); // 阻止事件冒泡，避免触发选择对话
 										onDeleteConversation(conversation.id);
 									}}

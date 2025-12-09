@@ -61,15 +61,17 @@ type StreamResponseCallback = (
  * @param requestData 请求数据
  * @returns Promise<ApiResponse>
  */
-export const setConversation = async (requestData: SetConversationRequest): Promise<ApiResponse> => {
+export const setConversation = async (
+	requestData: SetConversationRequest
+): Promise<ApiResponse> => {
 	try {
 		// 使用request工具的stream方法发起请求，因为接口返回SSE格式数据
 		const response = await request.stream('/api/llm/conversation/set', {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify(requestData)
+			body: JSON.stringify(requestData),
 		});
 
 		// 获取可读流
@@ -120,7 +122,10 @@ export const setConversation = async (requestData: SetConversationRequest): Prom
 							return responseData;
 						} catch (error) {
 							// 如果解析失败，继续处理下一行
-							console.log('Incomplete JSON, continuing to process:', (error as Error).message);
+							console.log(
+								'Incomplete JSON, continuing to process:',
+								(error as Error).message
+							);
 						}
 					}
 				}
@@ -149,10 +154,14 @@ export const setConversation = async (requestData: SetConversationRequest): Prom
  * @param conversationId 对话ID
  * @returns Promise<ConversationDetail | null>
  */
-export const getConversationDetail = async (conversationId: string): Promise<ConversationDetail | null> => {
+export const getConversationDetail = async (
+	conversationId: string
+): Promise<ConversationDetail | null> => {
 	try {
 		// 使用request.get方法发起GET请求
-		const response = await request.get(`/api/llm/conversation/get?conversation_id=${conversationId}`);
+		const response = await request.get(
+			`/api/llm/conversation/get?conversation_id=${conversationId}`
+		);
 
 		if (response.code === 0 && response.data) {
 			return response.data;
@@ -169,11 +178,13 @@ interface DeleteConversationRequest {
 	conversation_ids: string[];
 }
 
-export const deleteConversation = async (conversationIds: string[]): Promise<ApiResponse> => {
+export const deleteConversation = async (
+	conversationIds: string[]
+): Promise<ApiResponse> => {
 	try {
 		// 使用request.post方法发起DELETE请求
 		const response = await request.post('/api/llm/conversation/rm', {
-			conversation_ids: conversationIds
+			conversation_ids: conversationIds,
 		});
 		return response;
 	} catch (error) {
@@ -197,9 +208,9 @@ export const sendChatRequest = async (
 		const response = await request.stream('/api/rag/conversation/completion', {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify(requestData)
+			body: JSON.stringify(requestData),
 		});
 
 		// 获取可读流
@@ -281,7 +292,10 @@ export const sendChatRequest = async (
 								processedLines = i;
 							} catch (error) {
 								// 如果解析失败，保留tempBuffer，继续累积
-								console.log('Incomplete JSON, continuing to accumulate:', (error as Error).message);
+								console.log(
+									'Incomplete JSON, continuing to accumulate:',
+									(error as Error).message
+								);
 								break;
 							}
 						}
@@ -306,7 +320,10 @@ export const sendChatRequest = async (
 						processedLines = lines.length;
 					} catch (error) {
 						// 如果解析失败，保留在tempBuffer中
-						console.log('Incomplete JSON at end, keeping in buffer:', (error as Error).message);
+						console.log(
+							'Incomplete JSON at end, keeping in buffer:',
+							(error as Error).message
+						);
 					}
 				}
 
@@ -336,7 +353,11 @@ export const sendChatRequest = async (
 					// 如果data是true，停止更新
 					cancel();
 					return;
-				} else if (typeof data === 'object' && data !== null && 'answer' in data) {
+				} else if (
+					typeof data === 'object' &&
+					data !== null &&
+					'answer' in data
+				) {
 					// 如果是对象且有answer属性，更新AI回复
 					onResponse(data.answer, false);
 				}
@@ -352,11 +373,10 @@ export const sendChatRequest = async (
 
 		// 返回包含取消方法的对象
 		return { cancel };
-
 	} catch (error) {
 		console.error('Error:', error);
 		onResponse('', true, (error as Error).message);
 		// 返回一个空的取消函数
-		return { cancel: () => { } };
+		return { cancel: () => {} };
 	}
 };

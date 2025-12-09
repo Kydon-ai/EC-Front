@@ -6,9 +6,9 @@ interface AuthGuardProps {
 }
 
 /**
-	* 路由鉴权组件
-	* 用于保护需要登录才能访问的路由
-	*/
+ * 路由鉴权组件
+ * 用于保护需要登录才能访问的路由
+ */
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
 	const navigate = useNavigate();
 

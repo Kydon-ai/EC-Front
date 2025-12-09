@@ -69,7 +69,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 	latestCreatedConversationId,
 	onToggleSidebar,
 	isMobile,
-	isMobileSidebarOpen
+	isMobileSidebarOpen,
 }) => {
 	// 消息悬停状态管理
 	const [hoveredMessageId, setHoveredMessageId] = useState<string | null>(null);
@@ -97,7 +97,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 			id: `msg-${Date.now()}`,
 			content: inputValue,
 			role: 'user',
-			timestamp: timeString
+			timestamp: timeString,
 		};
 
 		setChatHistory(prev => [...prev, userMessage]);
@@ -114,7 +114,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 				id: `msg-${Date.now() + 1}`,
 				content: '抱歉，该知识我仍在学习中！',
 				role: 'assistant',
-				timestamp: timeString
+				timestamp: timeString,
 			};
 			setChatHistory(prev => [...prev, botMessage]);
 		}, 500);
@@ -131,7 +131,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 		}
 
 		if (!inputValue.trim()) return;
-		console.log("发起请求")
+		console.log('发起请求');
 		// 获取当前时间
 		const now = new Date();
 		const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
@@ -141,7 +141,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 			id: `msg-${Date.now()}`,
 			content: inputValue,
 			role: 'user',
-			timestamp: timeString
+			timestamp: timeString,
 		};
 
 		setChatHistory(prev => [...prev, userMessage]);
@@ -159,13 +159,17 @@ const ChatMain: React.FC<ChatMainProps> = ({
 			id: aiMessageId,
 			content: '',
 			role: 'assistant',
-			timestamp: timeString
+			timestamp: timeString,
 		};
 
 		setChatHistory(prev => [...prev, initialAiMessage]);
 
 		// 更新AI回复的函数
-		const updateAiResponse = (newContent: string, isComplete: boolean, error?: string) => {
+		const updateAiResponse = (
+			newContent: string,
+			isComplete: boolean,
+			error?: string
+		) => {
 			// 如果是结束信号且内容为空，保持当前内容不变
 			if (isComplete && newContent === '') {
 				// 请求完成或取消，重置loading状态
@@ -179,7 +183,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 					if (msg.id === aiMessageId) {
 						return {
 							...msg,
-							content: newContent
+							content: newContent,
 						};
 					}
 					return msg;
@@ -202,7 +206,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 			if (isNewConversation) {
 				// 使用从chat.tsx传递过来的最新创建的对话ID，而不是重新生成
 				if (!latestCreatedConversationId) {
-					console.error("无法获取最新创建的对话ID");
+					console.error('无法获取最新创建的对话ID');
 					return;
 				}
 
@@ -212,7 +216,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 				await setConversation({
 					conversation_id: latestCreatedConversationId,
 					name: inputValue, // 使用用户发送的问题作为会话名称
-					user_id: import.meta.env.VITE_USER_ID || '' // 使用环境变量中的USER_ID
+					user_id: import.meta.env.VITE_USER_ID || '', // 使用环境变量中的USER_ID
 				});
 
 				// 更新侧边栏对话名称为用户的第一个提问内容
@@ -226,24 +230,24 @@ const ChatMain: React.FC<ChatMainProps> = ({
 				role: msg.role,
 				files: [],
 				conversationId: conversationId,
-				doc_ids: []
+				doc_ids: [],
 			}));
 
 			// 添加当前新发送的消息
 			const currentMessage = {
 				id: generateUUID(), // 使用UUID生成工具生成唯一ID
 				content: inputValue,
-				role: "user",
+				role: 'user',
 				files: [],
 				conversationId: conversationId,
-				doc_ids: []
+				doc_ids: [],
 			};
 
 			// 使用封装的API函数发送聊天请求，包含完整的历史消息
 			const controller = await sendChatRequest(
 				{
 					conversation_id: conversationId,
-					messages: [...historyMessages, currentMessage]
+					messages: [...historyMessages, currentMessage],
 				},
 				updateAiResponse
 			);
@@ -259,8 +263,8 @@ const ChatMain: React.FC<ChatMainProps> = ({
 					id: `msg-${Date.now() + 2}`,
 					content: `请求失败：${error instanceof Error ? error.message : '未知错误'}`,
 					role: 'assistant',
-					timestamp: timeString
-				}
+					timestamp: timeString,
+				},
 			]);
 			// 请求失败，重置loading状态
 			setIsRequestLoading(false);
@@ -273,19 +277,18 @@ const ChatMain: React.FC<ChatMainProps> = ({
 		setInputValue(tip);
 	};
 
-
-
 	return (
 		<div className="flex-1 flex flex-col">
 			{/* 注入Markdown样式 */}
 			<style dangerouslySetInnerHTML={{ __html: markdownStyles }} />
 			{/* 引用标记悬停样式 */}
-			<style dangerouslySetInnerHTML={{
-				__html:
-					`.ref-tag:hover span {
+			<style
+				dangerouslySetInnerHTML={{
+					__html: `.ref-tag:hover span {
 					opacity: 1;
-				}`
-			}} />
+				}`,
+				}}
+			/>
 			{/* 聊天应用头部 */}
 			<header className="bg-white shadow-md py-3 px-6">
 				<div className="flex items-center justify-between">
@@ -302,7 +305,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 						)}
 						<button
 							className="text-gray-600 hover:text-gray-900 transition-colors"
-							onClick={() => navigate("/document-management")}
+							onClick={() => navigate('/document-management')}
 							title="知识库管理"
 						>
 							<BookOutlined />
@@ -325,32 +328,52 @@ const ChatMain: React.FC<ChatMainProps> = ({
 							className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4 relative group`}
 							onMouseEnter={() => setHoveredMessageId(message.id)}
 							onMouseLeave={() => setHoveredMessageId(null)}
-							onDoubleClick={() => copyToClipboard(message.content, setCopyMessage)}
+							onDoubleClick={() =>
+								copyToClipboard(message.content, setCopyMessage)
+							}
 						>
 							{message.role === 'assistant' && (
 								<div className="mr-3 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
 									🤖
 								</div>
 							)}
-							<div className={`markdown-content max-w-[75%] min-w-[100px] ${message.role === 'user' ? 'bg-blue-500 text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none'} rounded-lg p-4 shadow-sm relative`}>
-								<ReactMarkdown rehypePlugins={[rehypeRaw]}>{processMessageContent(message.content)}</ReactMarkdown>
-								<div className={`mt-2 text-xs ${message.role === 'user' ? 'text-blue-100' : 'text-gray-400'} text-right`}>{message.timestamp}</div>
+							<div
+								className={`markdown-content max-w-[75%] min-w-[100px] ${message.role === 'user' ? 'bg-blue-500 text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none'} rounded-lg p-4 shadow-sm relative`}
+							>
+								<ReactMarkdown rehypePlugins={[rehypeRaw]}>
+									{processMessageContent(message.content)}
+								</ReactMarkdown>
+								<div
+									className={`mt-2 text-xs ${message.role === 'user' ? 'text-blue-100' : 'text-gray-400'} text-right`}
+								>
+									{message.timestamp}
+								</div>
 
 								{/* 复制按钮 - 仅在悬停时显示 */}
 								<button
 									className={`absolute top-2 right-2 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity ${message.role === 'user' ? 'text-blue-100 hover:text-white' : 'text-gray-400 hover:text-gray-600'}`}
-									onClick={() => copyToClipboard(message.content, setCopyMessage)}
+									onClick={() =>
+										copyToClipboard(message.content, setCopyMessage)
+									}
 									title="复制消息"
 								>
 									📋
 								</button>
 
 								{/* 双击提示 - 仅在悬停时显示 */}
-								<div className={`absolute bottom-2 right-2 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity ${message.role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+								<div
+									className={`absolute bottom-2 right-2 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity ${message.role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+								>
 									双击复制
 								</div>
 							</div>
-							<div className={message.role === 'user' ? 'ml-3 w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 shadow-sm' : ''}>
+							<div
+								className={
+									message.role === 'user'
+										? 'ml-3 w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 shadow-sm'
+										: ''
+								}
+							>
 								{message.role === 'user' && '👤'}
 							</div>
 						</div>
@@ -367,7 +390,12 @@ const ChatMain: React.FC<ChatMainProps> = ({
 					{/* 示例提示 */}
 					<div className="flex justify-center mt-8">
 						<div className="flex flex-wrap gap-2">
-							{['今天天气怎么样？', '如何学习React？', '推荐一本好书', '帮我写个简历'].map((tip, index) => (
+							{[
+								'今天天气怎么样？',
+								'如何学习React？',
+								'推荐一本好书',
+								'帮我写个简历',
+							].map((tip, index) => (
 								<button
 									key={index}
 									className="px-3 py-1 text-sm text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors"
@@ -389,8 +417,13 @@ const ChatMain: React.FC<ChatMainProps> = ({
 						rows={3}
 						placeholder="请输入消息..."
 						value={inputValue}
-						onChange={(e) => setInputValue(e.target.value)}
-						onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !isRequestLoading) { e.preventDefault(); handleApiRequest(); } }}
+						onChange={e => setInputValue(e.target.value)}
+						onKeyDown={e => {
+							if (e.key === 'Enter' && !e.shiftKey && !isRequestLoading) {
+								e.preventDefault();
+								handleApiRequest();
+							}
+						}}
 						className="resize-none border-none focus:outline-none focus:ring-0 w-full p-2"
 					/>
 
@@ -407,9 +440,9 @@ const ChatMain: React.FC<ChatMainProps> = ({
 							className={`p-3 text-white rounded-full transition-colors ${isRequestLoading ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
 							onClick={handleApiRequest}
 							disabled={!inputValue.trim() && !isRequestLoading}
-							title={isRequestLoading ? "停止接收更新" : "发起API请求"}
+							title={isRequestLoading ? '停止接收更新' : '发起API请求'}
 						>
-							{isRequestLoading ? "⏹️" : "🚀"}
+							{isRequestLoading ? '⏹️' : '🚀'}
 						</button>
 					</div>
 
@@ -420,17 +453,13 @@ const ChatMain: React.FC<ChatMainProps> = ({
 				</div>
 			</footer>
 			{/* 移动端侧边栏遮罩层 */}
-			{
-				isMobile && isMobileSidebarOpen && (
-					<div
-						className="fixed inset-0 bg-black bg-opacity-50 z-30"
-						onClick={onToggleSidebar}
-					/>
-				)
-			}
+			{isMobile && isMobileSidebarOpen && (
+				<div
+					className="fixed inset-0 bg-black bg-opacity-50 z-30"
+					onClick={onToggleSidebar}
+				/>
+			)}
 		</div>
-
-
 	);
 };
 
