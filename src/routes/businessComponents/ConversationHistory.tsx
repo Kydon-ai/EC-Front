@@ -39,7 +39,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 				const messages: ChatMessage[] = detail.message.map((msg) => ({
 					id: msg.id,
 					content: msg.content,
-					sender: msg.role === 'assistant' ? 'bot' : 'user',
+					role: msg.role === 'assistant' ? 'assistant' : 'user',
 					timestamp: new Date(detail.update_time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
 				}));
 				onSelectConversation(conversation.id, messages);

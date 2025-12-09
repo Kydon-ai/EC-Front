@@ -2,7 +2,8 @@
 interface ChatMessage {
     id: string;
     content: string;
-    sender: 'user' | 'bot';
+    // sender: 'user' | 'bot';
+    role: 'user' | 'assistant'
     timestamp: string;
 }
 
