@@ -10,7 +10,6 @@ interface CounterState {
 export const useCounterStore = create<CounterState>()(
 	persist(
 		// 2. 使用 persist 包裹状态创建器
-		// eslint-disable-next-line
 		(set, get) => ({
 			count: 0,
 			increment: () => set(state => ({ count: state.count + 1 })),
@@ -20,7 +19,8 @@ export const useCounterStore = create<CounterState>()(
 			// 3. 配置持久化选项
 			name: 'counter-storage', // 存储在 localStorage 中的键名
 			// eslint-disable-next-line
-			getStorage: () => localStorage, // 指定使用 localStorage（默认就是它，可省略）
+			// @ts-ignore
+			getStorage: () => localStorage, // 很奇怪，官网的示例用法为什么也报错
 		}
 	)
 );

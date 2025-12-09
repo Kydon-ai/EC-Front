@@ -86,7 +86,11 @@ const ChatApp: React.FC = () => {
 			if (!conversationId) return;
 			const detailResponse = await getConversationDetail(conversationId);
 			console.log('see detailResponse：', detailResponse);
-			setChatHistory(detailResponse.message || []);
+			const messages = (detailResponse?.message || []).map((msg: any) => ({
+				...msg,
+				timestamp: msg.timestamp || new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+			}));
+			setChatHistory(messages);
 		} catch (error) {
 			console.error('获取对话详情失败:', error);
 		}
@@ -295,10 +299,10 @@ const ChatApp: React.FC = () => {
 			/>
 
 			{/* 文件上传弹窗 */}
-			<FileUploadModal
+			{/* <FileUploadModal
 				showFileUploadModal={showFileUploadModal}
 				handleCloseUploadModal={handleCloseUploadModal}
-			/>
+			/> */}
 		</div>
 	);
 };

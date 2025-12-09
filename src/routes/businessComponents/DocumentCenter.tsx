@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useState, useEffect } from 'react';
 import {
 	Tabs,
@@ -450,6 +451,7 @@ const DocumentCenter: React.FC = () => {
 					</div>
 					<div style={{ marginBottom: '16px' }}>
 						<Text strong>内容预览：</Text>
+						{/* @ts-expect-error */}
 						<Text ellipsis={{ rows: 10, expandable: true, symbol: '展开' }}>
 							{selectedDocument.content}
 						</Text>
@@ -486,7 +488,7 @@ const DocumentCenter: React.FC = () => {
 									<Form.Item
 										name="documentTitle"
 										label="文档标题"
-										// 非必填
+									// 非必填
 									>
 										<Input placeholder="请输入文档标题" />
 									</Form.Item>
@@ -495,7 +497,7 @@ const DocumentCenter: React.FC = () => {
 										name="author"
 										label="文件作者"
 										initialValue="匿名"
-										// 非必填
+									// 非必填
 									>
 										<Input placeholder="请输入文件作者" />
 									</Form.Item>
@@ -504,7 +506,7 @@ const DocumentCenter: React.FC = () => {
 										name="documentCategory"
 										label="文档分类"
 										initialValue="knowledge"
-										// 非必填，默认选中第一个分类
+									// 非必填，默认选中第一个分类
 									>
 										<Select placeholder="请选择文档分类">
 											{documentCategoryOptions.map(option => (

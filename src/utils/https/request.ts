@@ -202,8 +202,11 @@ request.useRequest(async config => {
 	if (!config.headers) {
 		config.headers = {};
 	}
-	if (!config.headers['Authorization'] && !config.headers['authorization']) {
-		config.headers['Authorization'] = `Bearer ${getAuthToken()}`;
+	if (
+		!(config.headers as Record<string, string>)['Authorization'] &&
+		!(config.headers as Record<string, string>)['authorization']
+	) {
+		(config.headers as Record<string, string>)['Authorization'] = `Bearer ${getAuthToken()}`;
 	}
 	return config;
 });
@@ -230,7 +233,7 @@ request.useResponse(async response => {
 			errorData = { message: '请求失败' };
 		}
 
-		throw new Error(errorData.message || '请求失败');
+		throw new Error((errorData as { message?: string }).message || '请求失败');
 	}
 	console.log('查看正确状态码：', status);
 	return response;

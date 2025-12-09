@@ -429,13 +429,13 @@ const ChatMain: React.FC<ChatMainProps> = ({
 
 					{/* 按钮区域 - 放在输入框下方右侧 */}
 					<div className="flex justify-end gap-3 mt-2">
-						<button
+						{/* <button
 							className="p-3 bg-gray-200 text-gray-600 rounded-full hover:bg-gray-300 transition-colors"
 							title="上传文件"
 							onClick={() => setShowFileUploadModal(true)}
 						>
 							📎
-						</button>
+						</button> */}
 						<button
 							className={`p-3 text-white rounded-full transition-colors ${isRequestLoading ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
 							onClick={handleApiRequest}
@@ -447,9 +447,9 @@ const ChatMain: React.FC<ChatMainProps> = ({
 					</div>
 
 					{/* 文件上传说明 */}
-					<div className="text-xs text-gray-400 mt-2">
+					{/* <div className="text-xs text-gray-400 mt-2">
 						支持上传格式：DOCS, TXT, PDF (最大5MB)
-					</div>
+					</div> */}
 				</div>
 			</footer>
 			{/* 移动端侧边栏遮罩层 */}
