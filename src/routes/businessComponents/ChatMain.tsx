@@ -7,6 +7,7 @@ import type { Components } from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { copyToClipboard, generateUUID } from '../../utils/chatUtils';
 import { markdownStyles } from '../../utils/chatUtils';
+import { BookOutlined } from '@ant-design/icons';
 
 // 处理消息内容，将[ID:\d+]格式的引用标记转换为HTML
 /* 
@@ -290,10 +291,10 @@ const ChatMain: React.FC<ChatMainProps> = ({
 						)}
 						<button
 							className="text-gray-600 hover:text-gray-900 transition-colors"
-							onClick={() => navigate(-1)}
-							title="返回上一页"
+							onClick={() => navigate("/document-upload")}
+							title="知识库管理"
 						>
-							←
+							<BookOutlined />
 						</button>
 						<h1 className="text-xl font-bold text-gray-800">豆包聊天助手</h1>
 					</div>
