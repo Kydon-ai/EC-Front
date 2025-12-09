@@ -44,6 +44,9 @@ interface ChatMainProps {
 	selectedConversationId: string;
 	onUpdateConversationName: (conversationId: string, newName: string) => void;
 	latestCreatedConversationId: string | null;
+	onToggleSidebar: () => void;
+	isMobile: boolean;
+	isMobileSidebarOpen: boolean;
 }
 
 const ChatMain: React.FC<ChatMainProps> = ({
@@ -62,7 +65,10 @@ const ChatMain: React.FC<ChatMainProps> = ({
 	sendChatRequest,
 	selectedConversationId,
 	onUpdateConversationName,
-	latestCreatedConversationId
+	latestCreatedConversationId,
+	onToggleSidebar,
+	isMobile,
+	isMobileSidebarOpen
 }) => {
 	// 消息悬停状态管理
 	const [hoveredMessageId, setHoveredMessageId] = useState<string | null>(null);
@@ -272,6 +278,16 @@ const ChatMain: React.FC<ChatMainProps> = ({
 			<header className="bg-white shadow-md py-3 px-6">
 				<div className="flex items-center justify-between">
 					<div className="flex items-center space-x-4">
+						{/* 移动端侧边栏控制按钮 */}
+						{isMobile && (
+							<button
+								className="text-gray-600 hover:text-gray-900 transition-colors"
+								onClick={onToggleSidebar}
+								title="切换侧边栏"
+							>
+								☰
+							</button>
+						)}
 						<button
 							className="text-gray-600 hover:text-gray-900 transition-colors"
 							onClick={() => navigate(-1)}
@@ -391,7 +407,18 @@ const ChatMain: React.FC<ChatMainProps> = ({
 					</div>
 				</div>
 			</footer>
+			{/* 移动端侧边栏遮罩层 */}
+			{
+				isMobile && isMobileSidebarOpen && (
+					<div
+						className="fixed inset-0 bg-black bg-opacity-50 z-30"
+						onClick={onToggleSidebar}
+					/>
+				)
+			}
 		</div>
+
+
 	);
 };
 

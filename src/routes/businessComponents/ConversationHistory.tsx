@@ -13,6 +13,9 @@ interface ConversationHistoryProps {
 	onNewConversation: () => void;
 	onDeleteConversation: (id: string) => void;
 	onToggleSidebar: () => void;
+	isMobile: boolean;
+	isMobileSidebarOpen: boolean;
+	onCloseMobileSidebar: () => void;
 }
 
 const ConversationHistory: React.FC<ConversationHistoryProps> = ({
@@ -23,7 +26,10 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 	onSelectConversation,
 	onNewConversation,
 	onDeleteConversation,
-	onToggleSidebar
+	onToggleSidebar,
+	isMobile,
+	isMobileSidebarOpen,
+	onCloseMobileSidebar
 }) => {
 	const handleConversationClick = async (conversation: ConversationItem) => {
 		try {
@@ -37,6 +43,11 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 					timestamp: new Date(detail.update_time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
 				}));
 				onSelectConversation(conversation.id, messages);
+
+				// 移动端选择对话后自动关闭侧边栏
+				if (isMobile) {
+					onCloseMobileSidebar();
+				}
 			}
 		} catch (error) {
 			console.error('Failed to load conversation detail:', error);
@@ -44,7 +55,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 	};
 
 	return (
-		<div className={`${sidebarCollapsed ? 'w-[60px]' : 'w-72'} border-r border-gray-200 flex flex-col bg-white transition-all duration-300`}>
+		<div className={`${sidebarCollapsed ? 'w-[60px]' : 'w-72'} border-r border-gray-200 flex flex-col bg-white transition-all duration-300 fixed z-40 h-full shadow-lg transform ${isMobile ? (isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full') : 'relative translate-x-0'}`}>
 			{/* 对话历史标题栏 */}
 			<div className="p-4 border-b border-gray-200">
 				<div className="text-lg font-bold text-gray-800 flex items-center justify-between">

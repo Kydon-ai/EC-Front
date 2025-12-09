@@ -21,6 +21,12 @@ const ChatApp: React.FC = () => {
 	const [latestCreatedConversationId, setLatestCreatedConversationId] = useState<string | null>(null);
 	// 侧边栏折叠状态
 	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+	// 移动端侧边栏显示状态
+	const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+	// 当前屏幕宽度
+	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+	// 移动端断点宽度
+	const MOBILE_BREAKPOINT = 768;
 
 	// 聊天历史记录
 	const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
@@ -154,9 +160,39 @@ const ChatApp: React.FC = () => {
 		}
 	};
 
-	// 切换侧边栏状态
+	// 监听屏幕宽度变化
+	useEffect(() => {
+		const handleResize = () => {
+			setScreenWidth(window.innerWidth);
+			// 当屏幕宽度大于等于断点时，自动关闭移动端侧边栏
+			if (window.innerWidth >= MOBILE_BREAKPOINT) {
+				setMobileSidebarOpen(false);
+			}
+		};
+
+		// 添加窗口大小变化监听
+		window.addEventListener('resize', handleResize);
+		// 初始检查屏幕宽度
+		handleResize();
+
+		// 清理事件监听
+		return () => window.removeEventListener('resize', handleResize);
+	}, []);
+
+	// 切换侧边栏状态（移动端和桌面端共用）
 	const handleToggleSidebar = () => {
-		setSidebarCollapsed(prev => !prev);
+		if (screenWidth < MOBILE_BREAKPOINT) {
+			// 移动端：切换侧边栏显示状态
+			setMobileSidebarOpen(prev => !prev);
+		} else {
+			// 桌面端：切换侧边栏折叠状态
+			setSidebarCollapsed(prev => !prev);
+		}
+	};
+
+	// 关闭移动端侧边栏
+	const handleCloseMobileSidebar = () => {
+		setMobileSidebarOpen(false);
 	};
 
 	// 关闭文件上传弹窗
@@ -188,6 +224,9 @@ const ChatApp: React.FC = () => {
 				onNewConversation={handleNewConversation}
 				onDeleteConversation={handleDeleteConversation}
 				onToggleSidebar={handleToggleSidebar}
+				isMobile={screenWidth < MOBILE_BREAKPOINT}
+				isMobileSidebarOpen={mobileSidebarOpen}
+				onCloseMobileSidebar={handleCloseMobileSidebar}
 			/>
 
 			{/* 右侧聊天主区域 */}
@@ -208,6 +247,9 @@ const ChatApp: React.FC = () => {
 				selectedConversationId={selectedConversationId}
 				onUpdateConversationName={handleUpdateConversationName}
 				latestCreatedConversationId={latestCreatedConversationId}
+				onToggleSidebar={handleToggleSidebar}
+				isMobile={screenWidth < MOBILE_BREAKPOINT}
+				isMobileSidebarOpen={mobileSidebarOpen}
 			/>
 
 			{/* 文件上传弹窗 */}
