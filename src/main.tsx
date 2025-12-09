@@ -17,8 +17,7 @@ import ShowDemo from "./routes/demo.tsx";
 import Home from "./routes/Home.tsx";
 import TailwindDemo from "./routes/TailwindDemo.tsx";
 import ChatApp from "./routes/businessComponents/chat.tsx";
-import DocumentUpload from "./routes/businessComponents/DocumentUpload.tsx";
-import DocumentManagement from "./routes/businessComponents/DocumentManagement.tsx";
+import DocumentCenter from "./routes/businessComponents/DocumentCenter.tsx";
 import AboutAuthor from "./routes/normal/AboutAuthor.tsx"
 import AboutProject from "./routes/normal/AboutProject.tsx"
 import ConcatMe from "./routes/normal/ConcatMe.tsx"
@@ -36,12 +35,8 @@ const items = [
 		label: '关于项目',
 	},
 	{
-		key: 'document-upload',
-		label: '文档上传',
-	},
-	{
-		key: 'document-management',
-		label: '文档管理',
+		key: 'document-center',
+		label: '文档中心',
 	},
 	{
 		key: 'concat-me',
@@ -61,11 +56,11 @@ const items = [
 // 创建布局组件以使用useLocation钩子
 const AppLayout = () => {
 	const location = useLocation();
-
+	const specialRouter = ["/chat", "/document-management"]
 	return (
 		<WindowSizeProvider>
 			<div className="layout">
-				{location.pathname !== '/chat' && (
+				{!specialRouter.includes(location.pathname) && (
 					<header className="header" style={{}}>
 						<TopMenu items={items}></TopMenu>
 					</header>
@@ -74,7 +69,7 @@ const AppLayout = () => {
 					<div style={{ minHeight: "100vh", backgroundColor: "darkgray" }}>
 						{/* 对chat路由应用100%宽度，其他路由保持80vw最大宽度 */}
 						<div style={{
-							maxWidth: location.pathname === '/chat' ? '100vw' : '80vw',
+							maxWidth: specialRouter.includes(location.pathname) ? '100vw' : '80vw',
 							margin: 'auto',
 						}}>
 							<Routes>
@@ -83,8 +78,7 @@ const AppLayout = () => {
 								<Route path="/demo" element={<ShowDemo />} />
 								<Route path="/tailwind-demo" element={<TailwindDemo />} />
 								<Route path="/chat" element={<ChatApp />} />
-								<Route path="/document-upload" element={<DocumentUpload />} />
-								<Route path="/document-management" element={<DocumentManagement />} />
+								<Route path="/document-management" element={<DocumentCenter />} />
 
 								<Route path="/about-project" element={<AuthGuard><AboutProject /></AuthGuard>} />
 								{/* <Route path="/about-author" element={<AboutAuthor />} /> */}
@@ -96,7 +90,7 @@ const AppLayout = () => {
 					</div>
 				</main>
 				{/* 当路由不是/chat时渲染页脚 */}
-				{location.pathname !== '/chat' && (
+				{!specialRouter.includes(location.pathname) && (
 					<footer className="footer" style={{ minHeight: "10vh" }}>
 						<FooterCopyright></FooterCopyright>
 					</footer>

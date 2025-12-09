@@ -291,7 +291,7 @@ const ChatMain: React.FC<ChatMainProps> = ({
 						)}
 						<button
 							className="text-gray-600 hover:text-gray-900 transition-colors"
-							onClick={() => navigate("/document-upload")}
+							onClick={() => navigate("/document-management")}
 							title="知识库管理"
 						>
 							<BookOutlined />
